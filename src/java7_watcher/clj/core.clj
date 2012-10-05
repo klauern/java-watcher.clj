@@ -31,7 +31,3 @@ stuff like this"
     (func)
     (.reset w)
     (recur watch func)))
-
-(def example-directory (make-path "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir"))
-(def watch (make-watcher example-directory))
-(register watch (:modify kinds) example-directory)
