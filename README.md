@@ -41,6 +41,13 @@ See these docs around the Java API.  There's not much in the way of wrapping the
   * [WatchService](http://docs.oracle.com/javase/7/docs/api/index.html?java/nio/file/WatchService.html)
   * [Java tutorial on using it](http://docs.oracle.com/javase/tutorial/essential/io/notification.html) (in Java, of course)
   * [JNotify](http://jnotify.sourceforge.net/)  (in case you would like something that works on Java 6 or natively on the Mac)
+  * [JPathWatch](http://jpathwatch.wordpress.com/) is similar to JNotify, but wraps the Java 7 API, so you could drop this in your project and not have to change the API much.
+
+## Compatibility
+
+As this uses a Java 7 API, it is assumed you'll be running on Java 7+.
+
+Mac OS X compatibility with this is lacking.  It works, but it's poll-based only, which at this time means you can't really track alot of changes at once (renaming the same file twice might only trigger one event).  See [this link](https://wikis.oracle.com/display/OpenJDK/Mac+OS+X+Port+Project+Status) for more information on OS X compatibility with JDK7 features.  It's coming along, but not there yet.
 
 ## License
 
