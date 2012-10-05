@@ -11,27 +11,27 @@ I can't say I really made this into much of an API, but here's where we are so f
 1. Create a directory to watch for file changes:
 
 ```clj
-    (def example-directory (make-path "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir"))
+(def example-directory (make-path "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir"))
 ```
 
 2. Create a watch service
 
 ```clj
-    (def example-directory (make-path "/Users/me/whatever/directory/you/want"))
+(def example-directory (make-path "/Users/me/whatever/directory/you/want"))
 ```
 
 
 3. Register the service so it tracks whatever `kinds` of changes to whichever directory/ies you want: `:create`, `:modify`, or `:delete`.
 
 ```clj
-    (def watch (make-watcher example-directory))
+(def watch (make-watcher example-directory))
 ```
 
 
 4. call `wait-for` and pass in a function to call when something changes:
 
 ```clj
-    (wait-for watch #(println "Oh Happy Day"))
+(wait-for watch #(println "Oh Happy Day"))
 ```
 
 ## Reference
