@@ -6,7 +6,18 @@ Maybe I will create or modify this to use something like [JNotify](http://jnotif
 
 ## Usage
 
-I can't say I really made this into much of an API, but here's where we are so far:
+This will create a watch that will block until an event happens, then execute your passed-in function:
+
+### Syntax-sugary way
+
+```clj
+(make-watch "/some/path/directory/here" [watch event kinds here] #(function to call here %))
+```
+Where `kinds` are one or more of `StandardWatchEventKinds/ENTRY_CREATE`, `ENTRY_DELETE`, and/or `ENTRY_MODIFY`, all under `kinds`.
+
+### More manual-control, choose-your-own-adventure way
+
+The above is just sugar around these calls:
 
 1. Create a directory to watch for file changes:
 
@@ -16,18 +27,32 @@ I can't say I really made this into much of an API, but here's where we are so f
 2. Create a watch service
 
    ```clj
-   (def example-directory (make-path "/Users/me/whatever/directory/you/want"))
+   (def watcher (make-watcher example-directory))  ;; needs to be a java.nio.file.Path object (as of right now)
    ```
+   
 3. Register the service so it tracks whatever `kinds` of changes to whichever directory/ies you want: `:create`, `:modify`, or `:delete`.
 
    ```clj
-   (def watch (make-watcher example-directory))
+   ;; can use any combination of elements in `kinds`, even `(vals kinds)` itself
+   (register-with watcher [(:create kinds) (:delete kinds)] example-directory)
    ```
+   
 4. call `wait-for` and pass in a function to call when something changes:
 
    ```clj
-   (wait-for watch #(println "Oh Happy Day"))
+   (wait-for watcher #(println "Oh Happy Day") extra args here)
+   ;; this is recursive and blocking.  It will execute your block on the event-change,
+   ;; then start over to wait for the next event
    ```
+
+## Things Missing
+
+There's actually a bit more I haven't gotten to:
+
+  1. pass in the event itself (with potential wrapping around the file or directory modified and what happened to it)
+  2. simplify the blocking nature of it (make it non-blocking or wrap that and allow user
+  to write their own handlers or start/stop handlers)
+  3. more…?
 
 ## Reference
 
