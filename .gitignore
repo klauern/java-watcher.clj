@@ -9,5 +9,5 @@ pom.xml
 .lein-failures
 .lein-plugins
 /bin
-
 .settings/ccw.repl.cmdhistory.prefs
+watchabledir/
