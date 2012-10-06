@@ -16,7 +16,7 @@ stuff like this"
   (-> dir .getFileSystem .newWatchService))
 
 (defn register-with [^WatchService watch watch-kinds directory]
-  (-> directory (.register watch (into-array [watch-kinds]))))
+  (-> directory (.register watch watch-kinds)))
 
 (defn- process-events [events]
   (map events #(println %)))
@@ -36,8 +36,8 @@ stuff like this"
   [path watch-types func & args]
   (let [p (make-path path)
         watcher (make-watcher p)]
-    (register-with watcher #^ (into-array [watch-types]) p)
-    (wait-for func args)))
+    (register-with watcher watch-types p)
+    (wait-for watcher func args)))
 
-(make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" kinds #(println "event happens"))
+(make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (into-array (vals kinds)) #(println "event happens"))
 
