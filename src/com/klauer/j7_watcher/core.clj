@@ -1,4 +1,5 @@
 (ns com.klauer.j7-watcher.core
+  (:require [name.stadig.polyfn :refer [defpolyfn]])
   (:import [java.nio.file Path Paths StandardWatchEventKinds
             WatchEvent WatchKey WatchService WatchEvent$Kind]))
 
@@ -30,14 +31,31 @@ stuff like this"
     ;; and start over again
     (recur watch func args)))
 
+;; Just as I find this isn't possible, I might have a solution in polyfn
+;; https://github.com/pjstadig/polyfn
+;; (defn make-watch-types-from 
+;;  ([^clojure.lang.PersistentVector types]
+;;    (into-array types))
+;;  ([^clojure.lang.APersistentMap$ValSeq types]
+;;    (into-array types)))
+
+(defpolyfn make-watch-types-from clojure.lang.PersistentVector [types]
+  (into-array types))
+
+(defpolyfn make-watch-types-from clojure.lang.APersistentMap$ValSeq [types]
+  (into-array types))
+
+
 (defn make-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
   (let [p (make-path path)
-        watcher (make-watcher p)]
-    (future (register-with watcher watch-types p)
-    (wait-for watcher func args))))
+        watcher (make-watcher p)
+        types (make-watch-types-from watch-types)]
+    (register-with watcher types p)
+    (wait-for watcher func args)))
 
-(def thing (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (into-array (vals kinds)) #(println "event happens")))
+(def t (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE] #(println "It happened" %)))
+(def thing (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (vals kinds) #(println "event happens" %)))
 
