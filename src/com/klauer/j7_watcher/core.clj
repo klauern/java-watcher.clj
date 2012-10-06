@@ -36,8 +36,8 @@ stuff like this"
   [path watch-types func & args]
   (let [p (make-path path)
         watcher (make-watcher p)]
-    (register-with watcher watch-types p)
-    (wait-for watcher func args)))
+    (future (register-with watcher watch-types p)
+    (wait-for watcher func args))))
 
-(make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (into-array (vals kinds)) #(println "event happens"))
+(def thing (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (into-array (vals kinds)) #(println "event happens")))
 
