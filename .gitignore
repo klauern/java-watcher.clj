@@ -11,3 +11,4 @@ pom.xml
 /bin
 .settings/ccw.repl.cmdhistory.prefs
 watchabledir/
+*.swp
