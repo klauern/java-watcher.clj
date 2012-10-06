@@ -2,6 +2,7 @@
   (:require [name.stadig.polyfn :refer [defpolyfn]])
   (:import [java.nio.file Path Paths StandardWatchEventKinds
             WatchEvent WatchKey WatchService WatchEvent$Kind]))
+(set! *warn-on-reflection* true)
 
 (def kinds {:create StandardWatchEventKinds/ENTRY_CREATE
             :delete StandardWatchEventKinds/ENTRY_DELETE
@@ -16,10 +17,10 @@ stuff like this"
 (defn make-watcher [^Path dir]
   (-> dir .getFileSystem .newWatchService))
 
-(defn register-with [^WatchService watch watch-kinds directory]
+(defn register-with [^WatchService watch watch-kinds ^Path directory]
   (-> directory (.register watch watch-kinds)))
 
-(defn wait-for [watch func & args]
+(defn wait-for [^WatchService watch func & args]
   (let [w (.take watch)
         e (.pollEvents w)]    
     (func args)
