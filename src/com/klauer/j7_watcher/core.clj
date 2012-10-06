@@ -1,4 +1,4 @@
-(ns java7-watcher.clj.core
+(ns com.klauer.j7-watcher.core
   (:import [java.nio.file Path Paths StandardWatchEventKinds
             WatchEvent WatchKey WatchService]))
 
