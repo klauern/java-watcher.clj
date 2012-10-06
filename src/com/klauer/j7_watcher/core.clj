@@ -19,9 +19,6 @@ stuff like this"
 (defn register-with [^WatchService watch watch-kinds directory]
   (-> directory (.register watch watch-kinds)))
 
-(defn- process-events [events]
-  (map events #(println %)))
-
 (defn wait-for [watch func & args]
   (let [w (.take watch)
         e (.pollEvents w)]    
@@ -56,6 +53,6 @@ stuff like this"
     (register-with watcher types p)
     (wait-for watcher func args)))
 
-(def t (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE] #(println "It happened" %)))
-(def thing (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (vals kinds) #(println "event happens" %)))
+(def t (future (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE] #(println "It happened" %))))
+(def thing (future (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (vals kinds) #(println "event happens" %))))
 
