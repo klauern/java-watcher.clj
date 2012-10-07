@@ -11,9 +11,27 @@ This will create a watch that will block until an event happens, then execute yo
 ### Syntax-sugary way
 
 ```clj
-(make-watch "/some/path/directory/here" [watch event kinds here] #(function to call here %))
+(make-watch "/some/path/directory/here" [watch event kinds here] #(println "hello event " %))
 ```
 Where `kinds` are one or more of `StandardWatchEventKinds/ENTRY_CREATE`, `ENTRY_DELETE`, and/or `ENTRY_MODIFY`, all under `kinds`.
+
+When something changes in that directory:
+
+```
+$ cd /some/path/directory/here
+$ touch make a couple files
+```
+
+You'll be greeted by your oh-so-fancy function you passed in for each of the events created (in the above example, 4 files were created):
+
+```
+hello event  {:kind #<StdWatchEventKind ENTRY_MODIFY>, :path /some/path/directory/here/a}
+hello event  {:kind #<StdWatchEventKind ENTRY_MODIFY>, :path /some/path/directory/here/couple}
+hello event  {:kind #<StdWatchEventKind ENTRY_MODIFY>, :path /some/path/directory/here/files}
+hello event  {:kind #<StdWatchEventKind ENTRY_MODIFY>, :path /some/path/directory/here/make}
+```
+
+So define a method to call which will take in the event map of `:kind` and `:path`, so you know what file changed and how.
 
 ### More manual-control, choose-your-own-adventure way
 

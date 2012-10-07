@@ -24,10 +24,12 @@ stuff like this"
 (defn unroll-event
   [^WatchEvent event ^WatchKey key]
   (let [dir (.watchable key)
+        ;; This is how you get an absolute path, because, surprise!, #toAbsolutePath
+        ;; doesn't work that way... See http://stackoverflow.com/a/7802029/7008
+        ;; for my awful discovery.
         full_path (.resolve dir (.context event))]
     { :kind (.kind event)
-    :context (.context event)
-    :path (.toString full_path)}))
+     :path (.toString full_path)}))
 
 (defn wait-for [^WatchService watch func]
   (let [w (.take watch)
