@@ -1,4 +1,5 @@
 # java7-watcher.clj
+[![Build Status](https://secure.travis-ci.org/klauern/java7-watcher.clj.png)](http://travis-ci.org/klauern/java7-watcher.clj)
 
 Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around [Java7's WatchService](http://docs.oracle.com/javase/tutorial/essential/io/notification.html), which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X [has no native file watching service](http://stackoverflow.com/a/11182515/7008), but rather uses a poll-based approach.
 
