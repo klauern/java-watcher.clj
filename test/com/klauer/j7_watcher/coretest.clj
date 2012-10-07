@@ -18,9 +18,8 @@
 (future-fact "can unroll the event into a map")
 
 
-;; (def t (future (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE] #(println "It happened" %))))
 (defn process [event]
-  (println "event being processed from user side as " event))
+  (println "hello event " event))
 
-;(future-cancel thing)
-(def thing (future (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (vals kinds) process)))
+(future-cancel thing)
+(def thing (future (make-watch "/Users/klauer/dev/clojure/watchabledir/" (vals kinds) process)))

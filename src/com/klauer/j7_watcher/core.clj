@@ -2,6 +2,7 @@
   (:require [name.stadig.polyfn :refer [defpolyfn]])
   (:import [java.nio.file Path Paths StandardWatchEventKinds
             WatchEvent WatchKey WatchService WatchEvent$Kind]))
+
 (set! *warn-on-reflection* true)
 
 (def kinds {:create StandardWatchEventKinds/ENTRY_CREATE
@@ -21,15 +22,17 @@ stuff like this"
   (-> directory (.register watch watch-kinds)))
 
 (defn unroll-event
-  [^WatchEvent event]
-  { :kind (.kind event)
+  [^WatchEvent event ^WatchKey key]
+  (let [dir (.watchable key)
+        full_path (.resolve dir (.context event))]
+    { :kind (.kind event)
     :context (.context event)
-    :path (-> event ^Path .context .toAbsolutePath .toString)})
+    :path (.toString full_path)}))
 
 (defn wait-for [^WatchService watch func]
   (let [w (.take watch)
         e (.pollEvents w)
-        unrolled (map unroll-event e)]
+        unrolled (map #(unroll-event %1 w) e)]
     ;; force calling each event to the user-defined function
     (dorun (map func unrolled))
     ;; then we reset the watch key
