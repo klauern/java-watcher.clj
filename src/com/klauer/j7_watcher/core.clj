@@ -10,18 +10,23 @@
             :modify StandardWatchEventKinds/ENTRY_MODIFY})
 
 (defn make-path 
-  "Creates a java.nio.file.Path object because Paths#get doesn't quite work without stupid fidgity
+  "Creates a java.nio.file.Path object from a string because Paths#get doesn't quite work without stupid fidgity
 stuff like this"
   [^String directory]
   (Paths/get directory (into-array String "")))
 
-(defn make-watcher [^Path dir]
+(defn make-watcher 
+  "Create new WatchService to register watch events to"
+  [^Path dir]
   (-> dir .getFileSystem .newWatchService))
 
-(defn register-with [^WatchService watch watch-kinds ^Path directory]
+(defn register-with 
+  "Register a directory to watch for the given event kinds"
+  [^WatchService watch watch-kinds ^Path directory]
   (-> directory (.register watch watch-kinds)))
 
 (defn unroll-event
+  "Convert a WatchEvent into a map of the kind of event and path that changed"
   [^WatchEvent event ^WatchKey key]
   (let [dir (.watchable key)
         ;; This is how you get an absolute path, because, surprise!, #toAbsolutePath
@@ -33,7 +38,11 @@ stuff like this"
     { :kind (.kind event)
      :path (.toString full_path)}))
 
-(defn wait-for [^WatchService watch func]
+(defn wait-for 
+  "loop and wait for events.  Blocks until an event happens, then processes the event
+   with the func passed in for each filesystem event that happens.  recurs until the
+   sun burns out or the service is stopped"
+  [^WatchService watch func]
   (let [w (.take watch)
         e (.pollEvents w)
         unrolled (map #(unroll-event %1 w) e)]
@@ -46,10 +55,6 @@ stuff like this"
 
 (defpolyfn make-watch-types-from clojure.lang.PersistentVector [types]
   (into-array types))
-
-(defpolyfn make-watch-types-from clojure.lang.APersistentMap$ValSeq [types]
-  (into-array types))
-
 
 (defn make-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
