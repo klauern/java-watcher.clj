@@ -1,0 +1,138 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Java 7 WatchService for Clojure by klauern</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Java 7 WatchService for Clojure</h1>
+        <p class="header">Thin wrapper around Java 7's WatchService for Clojure</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/klauern/java7-watcher.clj/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/klauern/java7-watcher.clj/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/klauern/java7-watcher.clj">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/klauern">klauern</a></p>
+
+
+      </header>
+      <section>
+        <h1>java7-watcher.clj</h1>
+
+<p>Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around <a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java7's WatchService</a>, which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X <a href="http://stackoverflow.com/a/11182515/7008">has no native file watching service</a>, but rather uses a poll-based approach.</p>
+
+<p>Maybe I will create or modify this to use something like <a href="http://jnotify.sourceforge.net/">JNotify</a>, which has cross-platform binaries for native file changes, and it works without Java 7.</p>
+
+<h2>Usage</h2>
+
+<p>This will create a watch that will block until an event happens, then execute your passed-in function:</p>
+
+<h3>Syntax-sugary way</h3>
+
+<div class="highlight"><pre><span class="p">(</span><span class="nf">make-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[</span><span class="nv">watch</span> <span class="nv">event</span> <span class="nv">kinds</span> <span class="nv">here</span><span class="p">]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
+</pre></div>
+
+<p>Where <code>kinds</code> are one or more of <code>StandardWatchEventKinds/ENTRY_CREATE</code>, <code>ENTRY_DELETE</code>, and/or <code>ENTRY_MODIFY</code>, all under <code>kinds</code>.</p>
+
+<p>When something changes in that directory:</p>
+
+<pre><code>$ cd /some/path/directory/here
+$ touch make a couple files
+</code></pre>
+
+<p>You'll be greeted by your oh-so-fancy function you passed in for each of the events created (in the above example, 4 files were created):</p>
+
+<pre><code>hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/directory/here/a}
+hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/directory/here/couple}
+hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/directory/here/files}
+hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/directory/here/make}
+</code></pre>
+
+<p>So define a method to call which will take in the event map of <code>:kind</code> and <code>:path</code>, so you know what file changed and how.</p>
+
+<h3>More manual-control, choose-your-own-adventure way</h3>
+
+<p>The above is just sugar around these calls:</p>
+
+<ol>
+<li>
+<p>Create a directory to watch for file changes:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="k">def </span><span class="nv">example-directory</span> <span class="p">(</span><span class="nf">make-path</span> <span class="s">"/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir"</span><span class="p">))</span>
+</pre></div>
+</li>
+<li>
+<p>Create a watch service</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="k">def </span><span class="nv">watcher</span> <span class="p">(</span><span class="nf">make-watcher</span> <span class="nv">example-directory</span><span class="p">))</span>  <span class="c1">;; needs to be a java.nio.file.Path object (as of right now)</span>
+</pre></div>
+</li>
+<li>
+<p>Register the service so it tracks whatever <code>kinds</code> of changes to whichever directory/ies you want: <code>:create</code>, <code>:modify</code>, or <code>:delete</code>.</p>
+
+<div class="highlight"><pre><span class="c1">;; can use any combination of elements in `kinds`, even `(vals kinds)` itself</span>
+<span class="p">(</span><span class="nf">register-with</span> <span class="nv">watcher</span> <span class="p">[(</span><span class="ss">:create</span> <span class="nv">kinds</span><span class="p">)</span> <span class="p">(</span><span class="ss">:delete</span> <span class="nv">kinds</span><span class="p">)]</span> <span class="nv">example-directory</span><span class="p">)</span>
+</pre></div>
+</li>
+<li>
+<p>call <code>wait-for</code> and pass in a function to call when something changes:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="nf">wait-for</span> <span class="nv">watcher</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"Oh Happy Day"</span><span class="p">)</span> <span class="nv">extra</span> <span class="nv">args</span> <span class="nv">here</span><span class="p">)</span>
+<span class="c1">;; this is recursive and blocking.  It will execute your block on the event-change,</span>
+<span class="c1">;; then start over to wait for the next event</span>
+</pre></div>
+</li>
+</ol><h2>Things Missing</h2>
+
+<p>There's actually a bit more I haven't gotten to:</p>
+
+<ol>
+<li>pass in the event itself (with potential wrapping around the file or directory modified and what happened to it)</li>
+<li>simplify the blocking nature of it (make it non-blocking or wrap that and allow user
+to write their own handlers or start/stop handlers)</li>
+<li>more…?</li>
+</ol><h2>Reference</h2>
+
+<p>See these docs around the Java API.  There's not much in the way of wrapping these Java types, so your best bet is just to adhere to whatever the JDK defined:</p>
+
+<ul>
+<li><a href="http://docs.oracle.com/javase/7/docs/api/index.html?java/nio/file/WatchService.html">WatchService</a></li>
+<li>
+<a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java tutorial on using it</a> (in Java, of course)</li>
+<li>
+<a href="http://jnotify.sourceforge.net/">JNotify</a>  (in case you would like something that works on Java 6 or natively on the Mac)</li>
+<li>
+<a href="http://jpathwatch.wordpress.com/">JPathWatch</a> is similar to JNotify, but wraps the Java 7 API, so you could drop this in your project and not have to change the API much.</li>
+</ul><h2>Compatibility</h2>
+
+<p>As this uses a Java 7 API, it is assumed you'll be running on Java 7+.</p>
+
+<p>Mac OS X compatibility with this is lacking.  It works, but it's poll-based only, which at this time means you can't really track alot of changes at once (renaming the same file twice might only trigger one event).  See <a href="https://wikis.oracle.com/display/OpenJDK/Mac+OS+X+Port+Project+Status">this link</a> for more information on OS X compatibility with JDK7 features.  It's coming along, but not there yet.</p>
+
+<h2>License</h2>
+
+<p>Copyright © 2012 Nick Klauer (klauer @ gmail)</p>
+
+<p>Distributed under the Eclipse Public License, the same as Clojure.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
