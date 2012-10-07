@@ -23,7 +23,7 @@ stuff like this"
 (defn register-with 
   "Register a directory to watch for the given event kinds"
   [^WatchService watch watch-kinds ^Path directory]
-  (-> directory (.register watch watch-kinds)))
+  (.register directory watch watch-kinds))
 
 (defn unroll-event
   "Convert a WatchEvent into a map of the kind of event and path that changed"
