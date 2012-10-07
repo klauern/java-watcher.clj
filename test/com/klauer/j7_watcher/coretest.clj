@@ -21,5 +21,5 @@
 (defn process [event]
   (println "hello event " event))
 
-(future-cancel thing)
-(def thing (future (make-watch "/Users/klauer/dev/clojure/watchabledir/" (vals kinds) process)))
+;;(future-cancel thing)
+;;(def thing (future (make-watch "/Users/klauer/dev/clojure/watchabledir/" (vals kinds) process)))
