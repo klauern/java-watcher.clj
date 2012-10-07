@@ -6,7 +6,7 @@
 (fact "can create watch type from clojure types"
       (type (make-watch-types-from ["One thing" "Two Things"])) => (class (into-array String []))
       (let [{:keys [create delete] :as ts} kinds]
-        (class (make-watch-types-from [create delete]) => (class (into-array StandardWatchEventKinds [])))))
+        (class (make-watch-types-from [create delete]) =future=> (class (into-array StandardWatchEventKinds [])))))
 
 
 (fact "can make paths from strings"
