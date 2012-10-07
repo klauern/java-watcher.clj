@@ -1,7 +1,7 @@
 (ns com.klauer.j7-watcher.core
   (:require [name.stadig.polyfn :refer [defpolyfn]])
   (:import [java.nio.file Path Paths StandardWatchEventKinds
-            WatchEvent WatchKey WatchService WatchEvent$Kind]))
+            WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]))
 
 (set! *warn-on-reflection* true)
 
@@ -27,7 +27,9 @@ stuff like this"
         ;; This is how you get an absolute path, because, surprise!, #toAbsolutePath
         ;; doesn't work that way... See http://stackoverflow.com/a/7802029/7008
         ;; for my awful discovery.
-        full_path (.resolve dir (.context event))]
+        context (.context event)
+        full_path (.resolve ^Path dir ^Path context)
+        ]
     { :kind (.kind event)
      :path (.toString full_path)}))
 
