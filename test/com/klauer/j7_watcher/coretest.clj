@@ -19,4 +19,3 @@
 
 
 ;; (def t (future (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE] #(println "It happened" %))))
-;; (def thing (future (make-watch "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir" (vals kinds) #(println "event happens" %))))
