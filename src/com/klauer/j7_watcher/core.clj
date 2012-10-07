@@ -20,22 +20,22 @@ stuff like this"
 (defn register-with [^WatchService watch watch-kinds ^Path directory]
   (-> directory (.register watch watch-kinds)))
 
-(defn wait-for [^WatchService watch func & args]
+(defn unroll-event
+  [^WatchEvent event]
+  { :kind (.kind event)
+    :context (.context event)
+    :path (-> event ^Path .context .toAbsolutePath .toString)})
+
+(defn wait-for [^WatchService watch func]
   (let [w (.take watch)
-        e (.pollEvents w)]    
-    (func args)
+        e (.pollEvents w)
+        unrolled (map unroll-event e)]
+    ;; force calling each event to the user-defined function
+    (dorun (map func unrolled))
     ;; then we reset the watch key
     (.reset w)
     ;; and start over again
-    (recur watch func args)))
-
-;; Just as I find this isn't possible, I might have a solution in polyfn
-;; https://github.com/pjstadig/polyfn
-;; (defn make-watch-types-from 
-;;  ([^clojure.lang.PersistentVector types]
-;;    (into-array types))
-;;  ([^clojure.lang.APersistentMap$ValSeq types]
-;;    (into-array types)))
+    (recur watch func)))
 
 (defpolyfn make-watch-types-from clojure.lang.PersistentVector [types]
   (into-array types))
@@ -52,4 +52,4 @@ stuff like this"
         watcher (make-watcher p)
         types (make-watch-types-from watch-types)]
     (register-with watcher types p)
-    (wait-for watcher func args)))
+    (wait-for watcher func)))
