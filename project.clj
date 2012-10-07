@@ -1,4 +1,4 @@
-(defproject java7-watcher.clj "0.1.0-SNAPSHOT"
+(defproject org.klauer/java7-watcher "0.1.0-SNAPSHOT"
   :description "Thin wrapper around Java 7's WatchService"
   :url "https://github.com/klauern/java7-watcher.clj"
   :license {:name "Eclipse Public License"
