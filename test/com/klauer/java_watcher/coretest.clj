@@ -8,15 +8,12 @@
       (let [{:keys [create delete] :as ts} kinds]
         (class (make-watch-types-from [create delete]) =future=> (class (into-array StandardWatchEventKinds [])))))
 
-
 (fact "can make paths from strings"
       (instance? java.nio.file.Path (make-path "/usr/local")) => truthy)
 
-(future-fact "each event is passed to the user function separately"
-      )
+(future-fact "each event is passed to the user function separately")
 
 (future-fact "can unroll the event into a map")
-
 
 (defn process [event]
   (println "hello event " event))
