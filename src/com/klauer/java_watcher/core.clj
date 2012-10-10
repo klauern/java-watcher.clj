@@ -1,5 +1,5 @@
-(ns com.klauer.j7-watcher.core
-  (:require [name.stadig.polyfn :refer [defpolyfn]])
+(ns com.klauer.java-watcher.core
+  (:require [name.stadig.polyfn :refer [defpolyfn extend-polyfn]])
   (:import [java.nio.file Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]))
 
@@ -53,8 +53,10 @@ stuff like this"
     ;; and start over again
     (recur watch func)))
 
-(defpolyfn make-watch-types-from clojure.lang.PersistentVector [types]
-  (into-array types))
+;; this is probably overkill, but it's also really nifty.
+(defpolyfn make-watch-types-from [types])
+(extend-polyfn make-watch-types-from clojure.lang.PersistentVector [types]
+               (into-array types))
 
 (defn make-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')

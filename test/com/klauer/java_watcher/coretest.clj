@@ -1,6 +1,6 @@
-(ns com.klauer.j7-watcher.coretest
+(ns com.klauer.java-watcher.coretest
   (:use [midje.sweet]
-        [com.klauer.j7-watcher.core])
+        [com.klauer.java-watcher.core])
   (:import [java.nio.file StandardWatchEventKinds]))
 
 (fact "can create watch type from clojure types"
