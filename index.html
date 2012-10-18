@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -15,37 +16,43 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>Java 7 WatchService for Clojure</h1>
-        <p>Thin wrapper around Java 7's WatchService for Clojure</p>
-
-        <p class="view"><a href="https://github.com/klauern/java7-watcher.clj">View the Project on GitHub <small>klauern/java7-watcher.clj</small></a></p>
-
+        <h1 class="header">Java 7 WatchService for Clojure</h1>
+        <p class="header">Thin wrapper around Java 7's WatchService for Clojure</p>
 
         <ul>
-          <li><a href="https://github.com/klauern/java7-watcher.clj/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/klauern/java7-watcher.clj/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/klauern/java7-watcher.clj">View On <strong>GitHub</strong></a></li>
+          <li class="download"><a class="buttons" href="https://github.com/klauern/java-watcher.clj/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/klauern/java-watcher.clj/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/klauern/java-watcher.clj">View On GitHub</a></li>
         </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/klauern">klauern</a></p>
+
+
       </header>
       <section>
-        <h1>java7-watcher.clj</h1>
+        <h1>java-watcher.clj</h1>
 
-<p><a href="http://travis-ci.org/klauern/java7-watcher.clj"><img src="https://secure.travis-ci.org/klauern/java7-watcher.clj.png" alt="Build Status"></a></p>
+<p><a href="http://travis-ci.org/klauern/java-watcher.clj"><img src="https://secure.travis-ci.org/klauern/java7-watcher.clj.png" alt="Build Status"></a></p>
 
-<p>Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around <a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java7's WatchService</a>, which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X <a href="http://stackoverflow.com/a/11182515/7008">has no native file watching service</a>, but rather uses a poll-based approach.</p>
+<p>Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around <a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java 7's WatchService</a>, which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X <a href="http://stackoverflow.com/a/11182515/7008">has no native file watching service</a>, but rather uses a poll-based approach.</p>
 
 <p>Maybe I will create or modify this to use something like <a href="http://jnotify.sourceforge.net/">JNotify</a>, which has cross-platform binaries for native file changes, and it works without Java 7.</p>
 
-<h2>Usage</h2>
+<h2>Creating Watches</h2>
 
-<p>This will create a watch that will block until an event happens, then execute your passed-in function:</p>
+<p>Include this in your <code>project.clj</code>:</p>
+
+<div class="highlight"><pre><span class="p">[</span><span class="nv">com.klauer/java-watcher</span> <span class="s">"0.1.0-SNAPSHOT"</span><span class="p">]</span>
+</pre></div>
+
+<p>There are two ways to go about creating a watch:</p>
 
 <h3>Syntax-sugary way</h3>
 
-<div class="highlight"><pre><span class="p">(</span><span class="nf">make-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[</span><span class="nv">watch</span> <span class="nv">event</span> <span class="nv">kinds</span> <span class="nv">here</span><span class="p">]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
+<div class="highlight"><pre><span class="p">(</span><span class="nf">make-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[(</span><span class="ss">:modify</span> <span class="nv">kinds</span><span class="p">)]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
 </pre></div>
 
-<p>Where <code>kinds</code> are one or more of <code>StandardWatchEventKinds/ENTRY_CREATE</code>, <code>ENTRY_DELETE</code>, and/or <code>ENTRY_MODIFY</code>, all under <code>kinds</code>.</p>
+<p>Where <code>kinds</code> are one or more of <code>:create</code>, <code>:modify</code>, or <code>:delete</code>, which mirror Java's <code>StandardWatchEventKinds/ENTRY_CREATE</code>, <code>ENTRY_DELETE</code>, and/or <code>ENTRY_MODIFY</code>.</p>
 
 <p>When something changes in that directory:</p>
 
@@ -100,10 +107,18 @@ hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/di
 <p>There's actually a bit more I haven't gotten to:</p>
 
 <ol>
-<li>pass in the event itself (with potential wrapping around the file or directory modified and what happened to it)</li>
-<li>simplify the blocking nature of it (make it non-blocking or wrap that and allow user
-to write their own handlers or start/stop handlers)</li>
-<li>more…?</li>
+<li>tests</li>
+<li>better model around <code>futures</code>, or some asynchronous <code>promise</code> or something.</li>
+<li>Controlling these watches:
+
+<ul>
+<li>start</li>
+<li>stop</li>
+<li>pause</li>
+<li>delete</li>
+<li>etc.</li>
+</ul>
+</li>
 </ol><h2>Reference</h2>
 
 <p>See these docs around the Java API.  There's not much in the way of wrapping these Java types, so your best bet is just to adhere to whatever the JDK defined:</p>
@@ -129,12 +144,11 @@ to write their own handlers or start/stop handlers)</li>
 <p>Distributed under the Eclipse Public License, the same as Clojure.</p>
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/klauern">klauern</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-              <script type="text/javascript">
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		          <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
