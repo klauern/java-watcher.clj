@@ -5,9 +5,15 @@ Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapp
 
 Maybe I will create or modify this to use something like [JNotify](http://jnotify.sourceforge.net/), which has cross-platform binaries for native file changes, and it works without Java 7.
 
-## Usage
+## Creating Watches
 
-This will create a watch that will block until an event happens, then execute your passed-in function:
+Include this in your `project.clj`:
+
+```clj
+[com.klauer/java-watcher "0.1.0-SNAPSHOT"]
+```
+
+There are two ways to go about creating a watch:
 
 ### Syntax-sugary way
 

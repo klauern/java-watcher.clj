@@ -15,7 +15,7 @@ stuff like this"
   [^String directory]
   (Paths/get directory (into-array String "")))
 
-(defn make-watcher 
+(defn make-watcher
   "Create new WatchService to register watch events to"
   [^Path dir]
   (-> dir .getFileSystem .newWatchService))
