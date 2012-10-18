@@ -3028,10 +3028,10 @@ net.brehaut.ClojureTools = (function (SH) {
     build_tree: build_tree
   };
 })(SyntaxHighlighter);
-</script><title>java7-watcher.clj -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">java7-watcher.clj</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Thin wrapper around Java 7's WatchService</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">name.stadig/polyfn</td><td class="dotted"><hr /></td><td class="dep-version">1.0.0</td></tr><tr><td class="dep-name">midje</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#com.klauer.j7-watcher.core">com.klauer.j7-watcher.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.j7-watcher.core" name="com.klauer.j7-watcher.core"><h1 class="project-name">com.klauer.j7-watcher.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(ns com.klauer.j7-watcher.core
-  (:require [name.stadig.polyfn :refer [defpolyfn]])
+</script><title>com.klauer/java-watcher -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.klauer/java-watcher</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Thin wrapper around Java 7's WatchService</p>
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">name.stadig/polyfn</td><td class="dotted"><hr /></td><td class="dep-version">2.0.0</td></tr><tr><td class="dep-name">midje</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#com.klauer.java-watcher.core">com.klauer.java-watcher.core</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.java-watcher.core" name="com.klauer.java-watcher.core"><h1 class="project-name">com.klauer.java-watcher.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns com.klauer.java-watcher.core
+  (:require [name.stadig.polyfn :refer [defpolyfn extend-polyfn]])
   (:import [java.nio.file Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs">
@@ -3042,7 +3042,7 @@ stuff like this</p>
 </td><td class="codes"><pre class="brush: clojure">(defn make-path 
   [^String directory]
   (Paths/get directory (into-array String &quot;&quot;)))</pre></td></tr><tr><td class="docs"><p>Create new WatchService to register watch events to</p>
-</td><td class="codes"><pre class="brush: clojure">(defn make-watcher 
+</td><td class="codes"><pre class="brush: clojure">(defn make-watcher
   [^Path dir]
   (-&gt; dir .getFileSystem .newWatchService))</pre></td></tr><tr><td class="docs"><p>Register a directory to watch for the given event kinds</p>
 </td><td class="codes"><pre class="brush: clojure">(defn register-with 
@@ -3071,9 +3071,10 @@ stuff like this</p>
     ;; then we reset the watch key
     (.reset w)
     ;; and start over again
-    (recur watch func)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defpolyfn make-watch-types-from clojure.lang.PersistentVector [types]
-  (into-array types))</pre></td></tr><tr><td class="docs"><p>Make a watch on a path 'path', given a seq of kinds (see 'kinds')
+    (recur watch func)))</pre></td></tr><tr><td class="docs"><p>this is probably overkill, but it's also really nifty.</p>
+</td><td class="codes"><pre class="brush: clojure">(defpolyfn make-watch-types-from [types])
+(extend-polyfn make-watch-types-from clojure.lang.PersistentVector [types]
+               (into-array types))</pre></td></tr><tr><td class="docs"><p>Make a watch on a path 'path', given a seq of kinds (see 'kinds')
    and passes these events to the <code>func</code> with any other arguments <code>args</code></p>
 </td><td class="codes"><pre class="brush: clojure">(defn make-watch 
   [path watch-types func &amp; args]
