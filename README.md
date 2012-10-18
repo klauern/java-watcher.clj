@@ -1,7 +1,7 @@
-# java7-watcher.clj
-[![Build Status](https://secure.travis-ci.org/klauern/java7-watcher.clj.png)](http://travis-ci.org/klauern/java7-watcher.clj)
+# java-watcher.clj
+[![Build Status](https://secure.travis-ci.org/klauern/java7-watcher.clj.png)](http://travis-ci.org/klauern/java-watcher.clj)
 
-Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around [Java7's WatchService](http://docs.oracle.com/javase/tutorial/essential/io/notification.html), which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X [has no native file watching service](http://stackoverflow.com/a/11182515/7008), but rather uses a poll-based approach.
+Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around [Java 7's WatchService](http://docs.oracle.com/javase/tutorial/essential/io/notification.html), which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X [has no native file watching service](http://stackoverflow.com/a/11182515/7008), but rather uses a poll-based approach.
 
 Maybe I will create or modify this to use something like [JNotify](http://jnotify.sourceforge.net/), which has cross-platform binaries for native file changes, and it works without Java 7.
 
@@ -18,9 +18,9 @@ There are two ways to go about creating a watch:
 ### Syntax-sugary way
 
 ```clj
-(make-watch "/some/path/directory/here" [watch event kinds here] #(println "hello event " %))
+(make-watch "/some/path/directory/here" [(:modify kinds)] #(println "hello event " %))
 ```
-Where `kinds` are one or more of `StandardWatchEventKinds/ENTRY_CREATE`, `ENTRY_DELETE`, and/or `ENTRY_MODIFY`, all under `kinds`.
+Where `kinds` are one or more of `:create`, `:modify`, or `:delete`, which mirror Java's `StandardWatchEventKinds/ENTRY_CREATE`, `ENTRY_DELETE`, and/or `ENTRY_MODIFY`.
 
 When something changes in that directory:
 
@@ -74,10 +74,14 @@ The above is just sugar around these calls:
 
 There's actually a bit more I haven't gotten to:
 
-  1. pass in the event itself (with potential wrapping around the file or directory modified and what happened to it)
-  2. simplify the blocking nature of it (make it non-blocking or wrap that and allow user
-  to write their own handlers or start/stop handlers)
-  3. more…?
+  1. tests
+  2. better model around `futures`, or some asynchronous `promise` or something.
+  3. Controlling these watches:
+     - start
+     - stop
+     - pause
+     - delete
+     - etc.
 
 ## Reference
 
