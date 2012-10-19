@@ -15,7 +15,7 @@ stuff like this"
   [^String directory]
   (Paths/get directory (into-array String "")))
 
-(defn make-watcher
+(defn make-watch-service
   "Create new WatchService to register watch events to"
   [^Path dir]
   (-> dir .getFileSystem .newWatchService))
@@ -63,7 +63,7 @@ stuff like this"
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
   (let [p (make-path path)
-        watcher (make-watcher p)
+        watcher (make-watch-service p)
         types (make-watch-types-from watch-types)]
     (register-with watcher types p)
     (wait-for watcher func)))

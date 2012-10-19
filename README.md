@@ -52,7 +52,7 @@ The above is just sugar around these calls:
 2. Create a watch service
 
    ```clj
-   (def watcher (make-watcher example-directory))  ;; needs to be a java.nio.file.Path object (as of right now)
+   (def watcher (make-watch-service example-directory))  ;; needs to be a java.nio.file.Path object (as of right now)
    ```
    
 3. Register the service so it tracks whatever `kinds` of changes to whichever directory/ies you want: `:create`, `:modify`, or `:delete`.
