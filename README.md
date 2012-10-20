@@ -75,13 +75,14 @@ The above is just sugar around these calls:
 There's actually a bit more I haven't gotten to:
 
   1. tests
-  2. better model around `futures`, or some asynchronous `promise` or something.
+  2. storage of watches (atom, ref, something)
   3. Controlling these watches:
      - start
      - stop
      - pause
      - delete
      - etc.
+  4. use of `agents` to handle processing watch events.
 
 ## Reference
 
