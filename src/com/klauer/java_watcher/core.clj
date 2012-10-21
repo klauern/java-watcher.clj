@@ -13,9 +13,9 @@
 
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
 
+
 (defn make-path 
-  "Creates a java.nio.file.Path object from a string because Paths#get doesn't quite work without stupid fidgity
-stuff like this"
+  "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
   [^String directory]
   (Paths/get directory (into-array String "")))
 
