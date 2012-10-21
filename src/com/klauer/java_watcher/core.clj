@@ -1,6 +1,6 @@
 (ns com.klauer.java-watcher.core
   (:require [name.stadig.polyfn :refer [defpolyfn extend-polyfn]])
-  (:import [java.nio.file Path Paths StandardWatchEventKinds
+  (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]))
 
 (set! *warn-on-reflection* true)
@@ -11,16 +11,13 @@
             ;; indicates that events may have been lost or discarded
             :overflow StandardWatchEventKinds/OVERFLOW})
 
+(def watch-service (atom (.. FileSystems getDefault newWatchService)))
+
 (defn make-path 
   "Creates a java.nio.file.Path object from a string because Paths#get doesn't quite work without stupid fidgity
 stuff like this"
   [^String directory]
   (Paths/get directory (into-array String "")))
-
-(defn make-watch-service
-  "Create new WatchService to register watch events to"
-  [^Path dir]
-  (-> dir .getFileSystem .newWatchService))
 
 (defn register-with 
   "Register a directory to watch for the given event kinds"
@@ -65,7 +62,6 @@ stuff like this"
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
   (let [p (make-path path)
-        watcher (make-watch-service p)
         types (make-watch-types-from watch-types)]
-    (register-with watcher types p)
-    (wait-for watcher func)))
+    (register-with @watch-service types p)
+    (wait-for @watch-service func)))
