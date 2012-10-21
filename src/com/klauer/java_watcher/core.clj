@@ -7,7 +7,9 @@
 
 (def kinds {:create StandardWatchEventKinds/ENTRY_CREATE
             :delete StandardWatchEventKinds/ENTRY_DELETE
-            :modify StandardWatchEventKinds/ENTRY_MODIFY})
+            :modify StandardWatchEventKinds/ENTRY_MODIFY
+            ;; indicates that events may have been lost or discarded
+            :overflow StandardWatchEventKinds/OVERFLOW})
 
 (defn make-path 
   "Creates a java.nio.file.Path object from a string because Paths#get doesn't quite work without stupid fidgity
