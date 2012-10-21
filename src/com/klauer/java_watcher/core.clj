@@ -21,7 +21,7 @@ stuff like this"
 
 (defn register-with 
   "Register a directory to watch for the given event kinds"
-  [^WatchService watch watch-kinds ^Path directory]
+  [^Path directory ^WatchService watch watch-kinds]
   (.register directory watch watch-kinds))
 
 (defn unroll-event
@@ -63,5 +63,5 @@ stuff like this"
   [path watch-types func & args]
   (let [p (make-path path)
         types (make-watch-types-from watch-types)]
-    (register-with @watch-service types p)
+    (register-with p @watch-service types)
     (wait-for @watch-service func)))
