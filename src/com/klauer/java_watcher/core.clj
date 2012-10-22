@@ -1,7 +1,9 @@
 (ns com.klauer.java-watcher.core
   (:require [name.stadig.polyfn :refer [defpolyfn extend-polyfn]])
   (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
-            WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]))
+            WatchEvent WatchKey Watchable WatchService WatchEvent$Kind])
+  (:use [lamina.executor :only [task]]
+        [lamina.core :only [wait-for-result restart redirect pipeline run-pipeline]]))
 
 (set! *warn-on-reflection* true)
 
@@ -12,6 +14,8 @@
             :overflow StandardWatchEventKinds/OVERFLOW})
 
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
+
+(def registered-watches (atom #{}))
 
 
 (defn make-path 
@@ -37,7 +41,15 @@
     { :kind (.kind event)
      :path (.toString full_path)}))
 
-(defn wait-for 
+(defn process-events [^WatchKey key func]
+  (let [events (.pollEvents key)
+        unrolled-events (map #(unroll-event %1 key) events)]
+    (dorun (map func unrolled-events))
+    (.reset key)
+    ))
+
+
+(comment (defn wait-for 
   "loop and wait for events.  Blocks until an event happens, then processes the event
    with the func passed in for each filesystem event that happens.  recurs until the
    sun burns out or the service is stopped"
@@ -50,7 +62,17 @@
     ;; then we reset the watch key
     (.reset w)
     ;; and start over again
-    (recur watch func)))
+    (recur watch func))))
+
+(defn wait-for
+  [^WatchService watch func]
+  (run-pipeline watch
+    #(task (.take watch))
+    #(task % (process-events % func))
+    ;; fails because it tries to pass one arg to wait-for
+    ;; Wrong number of args (1) passed to: core$wait-for$reify--9282$fn
+    (restart watch)
+    ))
 
 ;; this is probably overkill, but it's also really nifty.
 (defpolyfn make-watch-types-from [types])
@@ -63,5 +85,7 @@
   [path watch-types func & args]
   (let [p (make-path path)
         types (make-watch-types-from watch-types)]
-    (register-with p @watch-service types)
+    (swap! registered-watches conj (register-with p @watch-service types))
     (wait-for @watch-service func)))
+
+(make-watch "/Users/klauer/dev/clojure/java-watcher.clj/watchabledir" [(:create kinds) (:modify kinds) (:delete kinds)] #(println "Hello event " %))
