@@ -11,9 +11,7 @@
             :modify StandardWatchEventKinds/ENTRY_MODIFY
             ;; indicates that events may have been lost or discarded
             :overflow StandardWatchEventKinds/OVERFLOW})
-
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
-
 (def registered-watches (atom #{}))
 
 (defn unregister-watch 
@@ -41,18 +39,17 @@
         ;; doesn't work that way... See http://stackoverflow.com/a/7802029/7008
         ;; for my awful discovery.
         context (.context event)
-        full_path (.resolve ^Path dir ^Path context)
-        ]
-    { :kind (.kind event)
-     :path (.toString full_path)}))
+        full_path (.resolve ^Path dir ^Path context)]
+    {:kind (.kind event) :path (.toString full_path)}))
 
-(defn process-events [^WatchKey key func]
+(defn process-events
+  "Taking a WatchKey, process the events that occurred in it, and run the function across all of them"
+  [^WatchKey key func]
   (if (.isValid key)
     (let [events (.pollEvents key)
         unrolled-events (map #(unroll-event %1 key) events)]
     (dorun (map func unrolled-events))
-    (.reset key)
-    )))
+    (.reset key))))
 
 (defn pipeline-events-with
   "Start a Lamina Pipeline on the watch and run function"
