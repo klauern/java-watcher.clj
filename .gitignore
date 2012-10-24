@@ -12,3 +12,5 @@ pom.xml
 .settings/ccw.repl.cmdhistory.prefs
 watchabledir/
 *.swp
+
+test/com/klauer/java_watcher/scratch.clj
