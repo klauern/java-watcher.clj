@@ -41,11 +41,12 @@
      :path (.toString full_path)}))
 
 (defn process-events [^WatchKey key func]
-  (let [events (.pollEvents key)
+  (if (.isValid key)
+    (let [events (.pollEvents key)
         unrolled-events (map #(unroll-event %1 key) events)]
     (dorun (map func unrolled-events))
     (.reset key)
-    ))
+    )))
 
 (defn wait-for
   [^WatchService watch func]
@@ -53,7 +54,8 @@
       watch
       #(task (.take ^WatchService %))
       #(process-events % func)
-      (fn [_] (restart))))
+      (fn [restartable] (if restartable
+                (restart)))))
 
 ;; this is probably overkill, but it's also really nifty.
 (defpolyfn make-watch-types-from [types])
