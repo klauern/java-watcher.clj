@@ -68,10 +68,10 @@ The above is just sugar around these calls:
    (wait-for watcher #(println "Oh Happy Day") extra args here)
    ;; This is asynchronous through the use of the ever-nifty Lamina project (https://github.com/ztellman/lamina).
    ```
-5. All registered watches are stored in the `registered-watches` atom, and can be removed gracefully by calling `unregister-watch`:
+5. All registered watches are stored in the `*registered-watches*` atom, and can be removed by calling `unregister-watch`:
 
    ```clj
-   (unregister-watch (first @registered-watches))
+   (unregister-watch (first @*registered-watches*))
    ;; this not only removes it from the atom, but unregisters your passed-in function and any
    ;; handling of future file-system events it was registered for.
    ```
