@@ -18,7 +18,7 @@ There are two ways to go about creating a watch:
 ### Syntax-sugary way
 
 ```clj
-(make-watch "/some/path/directory/here" [(:modify kinds)] #(println "hello event " %))
+(register-watch "/some/path/directory/here" [(:modify kinds)] #(println "hello event " %))
 ```
 Where `kinds` are one or more of `:create`, `:modify`, or `:delete`, which mirror Java's `StandardWatchEventKinds/ENTRY_CREATE`, `ENTRY_DELETE`, and/or `ENTRY_MODIFY`.
 

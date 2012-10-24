@@ -69,7 +69,7 @@
 (extend-polyfn make-watch-types-from clojure.lang.PersistentVector [types]
                (into-array types))
 
-(defn make-watch 
+(defn register-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
