@@ -66,23 +66,27 @@ The above is just sugar around these calls:
 
    ```clj
    (wait-for watcher #(println "Oh Happy Day") extra args here)
-   ;; this is recursive and blocking.  It will execute your block on the event-change,
-   ;; then start over to wait for the next event
+   ;; This is asynchronous through the use of the ever-nifty Lamina project (https://github.com/ztellman/lamina).
    ```
+5. All registered watches are stored in the `registered-watches` atom, and can be removed gracefully by calling `unregister-watch`:
+
+   ```clj
+   (unregister-watch (first @registered-watches))
+   ;; this not only removes it from the atom, but unregisters your passed-in function and any
+   ;; handling of future file-system events it was registered for.
+   ```
+
 
 ## Things Missing
 
 There's actually a bit more I haven't gotten to:
 
   1. tests
-  2. storage of watches (atom, ref, something)
-  3. Controlling these watches:
+  2. more fine-grained control of these watches:
      - start
      - stop
      - pause
-     - delete
      - etc.
-  4. use of `agents` to handle processing watch events.
 
 ## Reference
 
