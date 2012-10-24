@@ -10,5 +10,12 @@
 
 (future-fact "can unroll the event into a map")
 
+(future-fact "functions cease being called after unregistering them")
+
+(future-fact "can cancel a registered watch")
+(future-fact "can register a watch")
+(future-fact "can inspect the registered watches")
+(future-fact "functions are called repeatedly on event changes")
+
 (defn process [event]
   (println "hello event " event))
