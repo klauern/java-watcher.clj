@@ -78,4 +78,3 @@
     (swap! registered-watches conj (register-with p @watch-service types))
     (wait-for @watch-service func)))
 
-(make-watch "/Users/klauer/dev/clojure/java-watcher.clj/watchabledir" [(:create kinds) (:modify kinds) (:delete kinds)] #(println "Hello event " %))
