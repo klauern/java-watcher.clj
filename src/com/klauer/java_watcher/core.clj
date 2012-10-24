@@ -15,14 +15,14 @@
 
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
 
-(def registered-watches (atom #{}))
+(def *registered-watches* (atom #{}))
 
 (defn unregister-watch 
   "Remove a watch from the registered watch list, as well as cancelling any future
    event monitoring that was registered with it" 
   [watch]
   (.cancel watch)
-  (swap! registered-watches disj watch))
+  (swap! *registered-watches* disj watch))
 
 (defn make-path 
   "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
@@ -75,6 +75,6 @@
   [path watch-types func & args]
   (let [p (make-path path)
         types (make-watch-types-from watch-types)]
-    (swap! registered-watches conj (register-with p @watch-service types))
+    (swap! *registered-watches* conj (register-with p @watch-service types))
     (wait-for @watch-service func)))
 
