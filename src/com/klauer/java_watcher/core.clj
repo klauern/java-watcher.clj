@@ -54,7 +54,8 @@
     (.reset key)
     )))
 
-(defn wait-for
+(defn pipeline-events-with
+  "Start a Lamina Pipeline on the watch and run function"
   [^WatchService watch func]
   (run-pipeline 
       watch
@@ -70,5 +71,4 @@
   (let [p (make-path path)
         types (into-array watch-types)]
     (swap! registered-watches conj (register-with p @watch-service types))
-    (wait-for @watch-service func)))
-
+    (pipeline-events-with @watch-service func)))
