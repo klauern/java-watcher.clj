@@ -49,26 +49,21 @@ The above is just sugar around these calls:
    ```clj
    (def example-directory (make-path "/Users/klauer/dev/clojure/java7-watcher.clj/watchabledir"))
    ```
-2. Create a watch service
-
-   ```clj
-   (def watcher (make-watch-service example-directory))  ;; needs to be a java.nio.file.Path object (as of right now)
-   ```
-   
-3. Register the service so it tracks whatever `kinds` of changes to whichever directory/ies you want: `:create`, `:modify`, or `:delete`.
+2. Register the service so it tracks whatever `kinds` of changes to whichever directory/ies you want: `:create`, `:modify`, or `:delete`.
 
    ```clj
    ;; can use any combination of elements in `kinds`, even `(vals kinds)` itself
-   (register-with watcher [(:create kinds) (:delete kinds)] example-directory)
+   ;; `@watch-service` is an atom for the FileSystem watch service.
+   (register-with example-directory @watch-service [(:create kinds) (:delete kinds)])
    ```
    
-4. call `wait-for` and pass in a function to call when something changes:
+3. call `pipeline-events-with` and pass in a function to call when something changes:
 
    ```clj
-   (wait-for watcher #(println "Oh Happy Day") extra args here)
+   (pipeline-events-with @watch-service #(println "Oh Happy Day") extra args here)
    ;; This is asynchronous through the use of the ever-nifty Lamina project (https://github.com/ztellman/lamina).
    ```
-5. All registered watches are stored in the `*registered-watches*` atom, and can be removed by calling `unregister-watch`:
+4. All registered watches are stored in the `*registered-watches*` atom, and can be removed by calling `unregister-watch`:
 
    ```clj
    (unregister-watch (first @*registered-watches*))
