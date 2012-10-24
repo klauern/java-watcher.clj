@@ -2,8 +2,8 @@
   (:require [name.stadig.polyfn :refer [defpolyfn extend-polyfn]])
   (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind])
-  (:use [lamina.executor :only [task]]
-        [lamina.core :only [wait-for-result restart redirect pipeline run-pipeline]]))
+  (:use [lamina.executor]
+        [lamina.core]))
 
 (set! *warn-on-reflection* true)
 
@@ -16,7 +16,6 @@
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
 
 (def registered-watches (atom #{}))
-
 
 (defn make-path 
   "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
@@ -48,31 +47,13 @@
     (.reset key)
     ))
 
-
-(comment (defn wait-for 
-  "loop and wait for events.  Blocks until an event happens, then processes the event
-   with the func passed in for each filesystem event that happens.  recurs until the
-   sun burns out or the service is stopped"
-  [^WatchService watch func]
-  (let [w (.take watch)
-        e (.pollEvents w)
-        unrolled (map #(unroll-event %1 w) e)]
-    ;; force calling each event to the user-defined function
-    (dorun (map func unrolled))
-    ;; then we reset the watch key
-    (.reset w)
-    ;; and start over again
-    (recur watch func))))
-
 (defn wait-for
   [^WatchService watch func]
-  (run-pipeline watch
-    #(task (.take watch))
-    #(task % (process-events % func))
-    ;; fails because it tries to pass one arg to wait-for
-    ;; Wrong number of args (1) passed to: core$wait-for$reify--9282$fn
-    (restart watch)
-    ))
+  (run-pipeline 
+      watch
+      #(task (.take ^WatchService %))
+      #(process-events % func)
+      (fn [_] (restart))))
 
 ;; this is probably overkill, but it's also really nifty.
 (defpolyfn make-watch-types-from [types])
