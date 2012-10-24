@@ -1,5 +1,4 @@
 (ns com.klauer.java-watcher.core
-  (:require [name.stadig.polyfn :refer [defpolyfn extend-polyfn]])
   (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind])
   (:use [lamina.executor]
@@ -64,17 +63,12 @@
       (fn [restartable] (if restartable
                 (restart)))))
 
-;; this is probably overkill, but it's also really nifty.
-(defpolyfn make-watch-types-from [types])
-(extend-polyfn make-watch-types-from clojure.lang.PersistentVector [types]
-               (into-array types))
-
 (defn register-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
   (let [p (make-path path)
-        types (make-watch-types-from watch-types)]
+        types (into-array watch-types)]
     (swap! registered-watches conj (register-with p @watch-service types))
     (wait-for @watch-service func)))
 
