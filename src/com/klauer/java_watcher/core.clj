@@ -20,7 +20,7 @@
 (defn unregister-watch 
   "Remove a watch from the registered watch list, as well as cancelling any future
    event monitoring that was registered with it" 
-  [watch]
+  [^WatchKey watch]
   (.cancel watch)
   (swap! registered-watches disj watch))
 
