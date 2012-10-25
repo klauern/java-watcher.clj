@@ -67,6 +67,8 @@
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
   (let [p (make-path path)
-        types (into-array watch-types)]
-    (swap! registered-watches conj (register-with p @watch-service types))
-    (pipeline-events-with @watch-service func)))
+        types (into-array watch-types)
+        watch (register-with p @watch-service types)]
+    (swap! registered-watches conj watch)
+    (pipeline-events-with @watch-service func)
+    watch))
