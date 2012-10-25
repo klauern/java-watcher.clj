@@ -58,8 +58,9 @@
       watch
       #(task (.take ^WatchService %))
       #(process-events % func)
-      (fn [restartable] (if restartable
-                (restart)))))
+      (fn [restartable] 
+        (if restartable
+          (restart)))))
 
 (defn register-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
