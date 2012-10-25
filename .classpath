@@ -22,7 +22,6 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="ccw.LEININGEN_CONTAINER"/>
-	<classpathentry kind="lib" path="classes"/>
+	<classpathentry exported="true" kind="con" path="ccw.LEININGEN_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
