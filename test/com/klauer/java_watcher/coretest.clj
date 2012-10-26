@@ -14,6 +14,8 @@
 (future-fact "can unroll the event into a map")
 (future-fact "functions cease being called after unregistering them")
 (future-fact "functions are called repeatedly on event changes")
+(future-fact "can register multiple functions to be called on the same event subscription")
+(future-fact "unregistering a watch removes all functions to be called on it")
 
 (fact "can make paths from strings"
       (instance? java.nio.file.Path (make-path "/usr/local")) => truthy)
@@ -47,7 +49,6 @@
             second (dummy-watch (second dirs))]
         (unregister-watch first)
         (.isValid second) => true))
-
 
 (fact "can unregister a registered watch"
       (let [watch (dummy-watch (first dirs))]

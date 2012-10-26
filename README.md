@@ -82,6 +82,8 @@ There's actually a bit more I haven't gotten to:
      - stop
      - pause
      - etc.
+  3. defining multiple functions to be called with the same watch
+  4. redefining a watch and it's function to be called
 
 ## Reference
 
