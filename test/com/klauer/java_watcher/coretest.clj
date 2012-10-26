@@ -20,14 +20,6 @@
 (fact "can make paths from strings"
       (instance? java.nio.file.Path (make-path "/usr/local")) => truthy)
 
-(fact "can unregister a registered watch"
-      (let [watch (dummy-watch (first dirs))]
-        (unregister-watch watch)
-        (count (watches)) => 0)
-      (against-background (before :facts (reset! registered-watches #{})))
-      (provided 
-        (watches) => #{}))
-
 (background 
   (before :facts (reset! registered-watches #{}))
   (after :facts (reset! registered-watches #{})))
@@ -36,11 +28,20 @@
       (let [watch (dummy-watch (first dirs))]
         (.isValid watch) => true
         (first @registered-watches) => watch))
+
 (fact "registering a watch returns the same watch service in `registered-watches`"
       (let [watch (dummy-watch (first dirs))]
         watch => (first @registered-watches)))
+
 (fact "unregistering one watch should NOT invalidate any others"
       (let [first (dummy-watch (first dirs))
             second (dummy-watch (second dirs))]
         (unregister-watch first)
         (.isValid second) => true))
+
+(fact "can unregister a registered watch"
+      (let [watch (dummy-watch (first dirs))]
+        (unregister-watch watch)
+        (count (watches)) => 0)
+      (provided 
+        (watches) => #{}))
