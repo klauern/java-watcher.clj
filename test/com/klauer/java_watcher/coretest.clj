@@ -28,9 +28,10 @@
       (provided 
         (watches) => #{}))
 
-(against-background 
+(background 
   (before :facts (reset! registered-watches #{}))
-  ;;(after :facts (swap))
+  (after :facts (reset! registered-watches #{})))
+
   (fact "can register a watch"
         (let [watch (dummy-watch (first dirs))]
           (.isValid watch) => true
@@ -42,4 +43,4 @@
         (let [first (dummy-watch (first dirs))
               second (dummy-watch (second dirs))]
           (unregister-watch first)
-          (.isValid second) => true)))
+          (.isValid second) => true))
