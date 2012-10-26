@@ -5,8 +5,11 @@
   (:import [java.nio.file StandardWatchEventKinds Files]))
 
 (def dirs [(.toString (temp-dir "one")) (.toString (temp-dir "two"))])
-(defn dummy-watch [dir]
-  (register-watch dir [:modify] #(println %)))
+(defn dummy-watch
+  ([dir]
+    (register-watch dir [:modify] #(println %)))
+  ([dir msg]
+    (register-watch dir [:modify] #(println msg %))))
 (defn watches []
   @registered-watches)
 
@@ -56,3 +59,12 @@
         (count (watches)) => 0)
       (provided 
         (watches) => #{}))
+
+(future-fact "when registering two watches on separate dirs, one won't call the other"
+      (let [first (dummy-watch (first dirs))
+            second (dummy-watch (second dirs))]
+        ;; create a file on the second directory
+        ;; verify that the first was never called
+        ;; verify that the second was
+        ;; create a file on the first directory, verify the vice-versa
+        ))

@@ -61,7 +61,9 @@
   [^WatchService watch func]
   (run-pipeline 
       watch
+      ;; blocks for all possible events
       #(task (.take ^WatchService %))
+      ;; process events needs to find out WHICH path changed,
       #(process-events % func)
       (fn [restartable] 
         (if restartable
