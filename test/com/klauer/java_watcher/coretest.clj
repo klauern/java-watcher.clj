@@ -60,7 +60,7 @@
       (provided 
         (watches) => #{}))
 
-(future-fact "when registering two watches on separate dirs, one won't call the other"
+(future-fact "when registering two watches on separate dirs, one won't get called by events on the other's directory"
       (let [first (dummy-watch (first dirs))
             second (dummy-watch (second dirs))]
         ;; create a file on the second directory
