@@ -26,6 +26,9 @@
              (against-background (before :facts (reset! registered-watches #{})))
              (provided 
               (watches)  => #{}))
+
+(future-fact "an unregistered watch is invalid")
+
 (future-fact "can register a watch")
 (future-fact "can inspect the registered watches")
 (future-fact "functions are called repeatedly on event changes")
