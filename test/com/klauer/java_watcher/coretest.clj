@@ -26,7 +26,7 @@
         (count (watches)) => 0)
       (against-background (before :facts (reset! registered-watches #{})))
       (provided 
-        (watches)  => #{}))
+        (watches) => #{}))
 
 (fact "registering a watch returns the same watch service in `registered-watches`"
       (let [watch (dummy-watch (first dirs))]
