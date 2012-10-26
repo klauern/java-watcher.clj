@@ -71,5 +71,6 @@
         types (into-array watch-types)
         watch (register-with p @watch-service types)]
     (swap! registered-watches conj watch)
+    ;; TODO: store the func in the registered-watches as an array of funcs to call on the watch.
     (pipeline-events-with @watch-service func)
     watch))
