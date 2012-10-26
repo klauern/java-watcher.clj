@@ -7,31 +7,27 @@
 (def dirs [(.toString (temp-dir "one")) (.toString (temp-dir "two"))])
 (defn dummy-watch [dir]
   (register-watch dir [(:modify kinds)] #(println %)))
-
-(fact "can make paths from strings"
-      (instance? java.nio.file.Path (make-path "/usr/local")) => truthy)
+(defn watches []
+  @registered-watches)
 
 (future-fact "each event is passed to the user function separately")
 (future-fact "can unroll the event into a map")
 (future-fact "functions cease being called after unregistering them")
-
-
-(defn watches []
-  @registered-watches)
-
-(fact "can unregister a registered watch"
-             (let [watch (dummy-watch (first dirs))]
-               (unregister-watch watch)
-               (count (watches)) => 0)
-             (against-background (before :facts (reset! registered-watches #{})))
-             (provided 
-              (watches)  => #{}))
-
 (future-fact "an unregistered watch is invalid")
-
 (future-fact "can register a watch")
 (future-fact "can inspect the registered watches")
 (future-fact "functions are called repeatedly on event changes")
+
+(fact "can make paths from strings"
+      (instance? java.nio.file.Path (make-path "/usr/local")) => truthy)
+
+(fact "can unregister a registered watch"
+      (let [watch (dummy-watch (first dirs))]
+        (unregister-watch watch)
+        (count (watches)) => 0)
+      (against-background (before :facts (reset! registered-watches #{})))
+      (provided 
+        (watches)  => #{}))
 
 (fact "registering a watch returns the same watch service in `registered-watches`"
       (let [watch (dummy-watch (first dirs))]
