@@ -13,8 +13,6 @@
 (future-fact "each event is passed to the user function separately")
 (future-fact "can unroll the event into a map")
 (future-fact "functions cease being called after unregistering them")
-(future-fact "an unregistered watch is invalid")
-(future-fact "can inspect the registered watches")
 (future-fact "functions are called repeatedly on event changes")
 
 (fact "can make paths from strings"
@@ -38,11 +36,18 @@
             unregistered (unregister-watch watch)]
         watch => unregistered))
 
+(fact "an unregistered watch is invalid"
+             (let [watch (dummy-watch (second dirs))
+                   still-valid (unregister-watch watch)]
+               (.isValid watch) => false
+               (.isValid still-valid) => falsey))
+
 (fact "unregistering one watch should NOT invalidate any others"
       (let [first (dummy-watch (first dirs))
             second (dummy-watch (second dirs))]
         (unregister-watch first)
         (.isValid second) => true))
+
 
 (fact "can unregister a registered watch"
       (let [watch (dummy-watch (first dirs))]
