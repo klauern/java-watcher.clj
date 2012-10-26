@@ -6,7 +6,7 @@
 
 (def dirs [(.toString (temp-dir "one")) (.toString (temp-dir "two"))])
 (defn dummy-watch [dir]
-  (register-watch dir [(:modify kinds)] #(println %)))
+  (register-watch dir [:modify] #(println %)))
 (defn watches []
   @registered-watches)
 
