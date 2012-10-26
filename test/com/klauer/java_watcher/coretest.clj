@@ -38,7 +38,8 @@
         watch => (first @registered-watches))
       (against-background (before :facts (reset! registered-watches #{}))))
 
-(future-fact "unregistering one watch should NOT invalidate any others"
+
+(fact "unregistering one watch should NOT invalidate any others"
       (let [first (dummy-watch (first dirs))
             second (dummy-watch (second dirs))]
         (unregister-watch (first @registered-watches))
