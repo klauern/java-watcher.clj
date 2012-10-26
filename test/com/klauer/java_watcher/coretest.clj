@@ -33,6 +33,11 @@
       (let [watch (dummy-watch (first dirs))]
         watch => (first @registered-watches)))
 
+(fact "unregistering a watch returns the unregistered watch"
+      (let [watch (dummy-watch (first dirs))
+            unregistered (unregister-watch watch)]
+        watch => unregistered))
+
 (fact "unregistering one watch should NOT invalidate any others"
       (let [first (dummy-watch (first dirs))
             second (dummy-watch (second dirs))]

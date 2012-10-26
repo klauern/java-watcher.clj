@@ -19,7 +19,8 @@
    event monitoring that was registered with it" 
   [^WatchKey watch]
   (.cancel watch)
-  (swap! registered-watches disj watch))
+  (swap! registered-watches disj watch)
+  watch)
 
 (defn make-path 
   "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
