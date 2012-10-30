@@ -2,14 +2,19 @@
   (:use [midje.sweet]
         [com.klauer.java-watcher.core]
         [fs.core :only [temp-dir]])
-  (:import [java.nio.file StandardWatchEventKinds Files]))
+  (:require [fs.core :as fs]
+            [com.klauer.java-watcher.files :as files])
+  (:import [java.nio.file StandardWatchEventKinds Files]
+           [java.nio.file.attribute FileAttribute]))
 
 (def dirs [(.toString (temp-dir "one")) (.toString (temp-dir "two"))])
+(defn dummy-fn [path]
+  (println "dummy function called with path " path))
 (defn dummy-watch
   ([dir]
-    (register-watch dir [:modify] #(println %)))
+    (register-watch dir [:modify] dummy-fn))
   ([dir msg]
-    (register-watch dir [:modify] #(println msg %))))
+    (register-watch dir [:modify] dummy-fn)))
 (defn watches []
   @registered-watches)
 
@@ -21,7 +26,7 @@
 (future-fact "unregistering a watch removes all functions to be called on it")
 
 (fact "can make paths from strings"
-      (instance? java.nio.file.Path (make-path "/usr/local")) => truthy)
+      (instance? java.nio.file.Path (files/make-path "/usr/local")) => truthy)
 
 (background 
   (before :facts (reset! registered-watches #{}))
