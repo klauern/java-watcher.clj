@@ -1,6 +1,7 @@
 (ns com.klauer.java-watcher.core
   (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind])
+  (:require [com.klauer.java-watcher.files :as files])
   (:use [lamina.executor]
         [lamina.core]))
 
@@ -25,11 +26,6 @@
   (.cancel watch)
   (swap! registered-watches disj watch)
   watch)
-
-(defn make-path 
-  "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
-  [^String directory]
-  (Paths/get directory (into-array String "")))
 
 (defn register-with 
   "Register a directory to watch for the given event kinds"
@@ -73,7 +69,7 @@
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
-  (let [p (make-path path)
+  (let [p (files/make-path path)
         types (into-array (map kinds watch-types))
         watch (register-with p @watch-service types)
         path-event (->PathEvent p watch-types)
