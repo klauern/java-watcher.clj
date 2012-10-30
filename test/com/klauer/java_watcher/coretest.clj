@@ -24,6 +24,9 @@
 (future-fact "functions are called repeatedly on event changes")
 (future-fact "can register multiple functions to be called on the same event subscription")
 (future-fact "unregistering a watch removes all functions to be called on it")
+(future-fact "can use relative paths with make-path")
+(future-fact "can use ~ in make-path")
+(future-fact "relative paths in make-path resolve to fully-qualified paths")
 
 (fact "can make paths from strings"
       (instance? java.nio.file.Path (files/make-path "/usr/local")) => truthy)

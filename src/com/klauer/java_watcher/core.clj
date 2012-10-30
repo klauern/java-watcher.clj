@@ -72,7 +72,7 @@
   (let [p (files/make-path path)
         types (into-array (map kinds watch-types))
         watch (register-with p @watch-service types)
-        path-event (->PathEvent p watch-types)
+        path-event (->PathEvent (.toString p) watch-types)
         watch-rec (->Watch watch path-event func)]
     (swap! registered-watch-path-events conj watch-rec) ;; will eventually replace registered-watches
     (swap! registered-watches conj watch)
