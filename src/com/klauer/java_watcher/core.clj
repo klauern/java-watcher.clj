@@ -48,9 +48,10 @@
   [^WatchKey key func]
   (if (.isValid key)
     (let [events (.pollEvents key)
-        unrolled-events (map #(unroll-event %1 key) events)]
-    (dorun (map func unrolled-events))
-    (.reset key))))
+          unrolled-events (map #(unroll-event %1 key) events)]
+      ;; lookup function to call based on the :path and :kind
+      (dorun (map func unrolled-events))
+      (.reset key))))
 
 (defn pipeline-events-with
   "Start a Lamina Pipeline on the watch and run function"
@@ -59,7 +60,6 @@
       watch
       ;; blocks for all possible events
       #(task (.take ^WatchService %))
-      ;; process events needs to find out WHICH path changed,
       #(process-events % func)
       (fn [restartable] 
         (if restartable
