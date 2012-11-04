@@ -60,6 +60,8 @@
       watch
       ;; blocks for all possible events
       #(task (.take ^WatchService %))
+      ;; needs to determine which path and event type was invoked,
+      ;; then find the functions to call on it.
       #(process-events % func)
       (fn [restartable] 
         (if restartable
