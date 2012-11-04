@@ -69,7 +69,7 @@
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
    and passes these events to the `func` with any other arguments `args`" 
   [path watch-types func & args]
-  (let [p (files/make-path path)
+  (let [p ^Path (files/make-path path)
         types (into-array (map kinds watch-types))
         watch (register-with p @watch-service types)
         path-event (->PathEvent (.toString p) watch-types)
