@@ -5,9 +5,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [lamina "0.5.0-beta7"]
-                 [midje "1.5.0-SNAPSHOT" :scope "test"]
+                 [midje "1.5-alpha2" :scope "test"]
                  [fs "1.3.2" :scope "test"]
                  [com.stuartsierra/lazytest "1.2.3" :scope "test"]]
   :repositories {"stuart" "http://stuartsierra.com/maven2"}
-  :plugins [[lein-midje "2.0.0"]
+  :plugins [[lein-midje "2.0.1"]
             [codox "0.6.1"]])
