@@ -16,3 +16,4 @@ watchabledir/
 test/com/klauer/java_watcher/scratch.clj
 
 scratch/scratch.clj
+/second-watchabledir
