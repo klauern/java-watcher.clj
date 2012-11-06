@@ -1,9 +1,9 @@
 (ns com.klauer.java-watcher.core
   (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind])
-  (:require [com.klauer.java-watcher.files :as files])
-  (:use [lamina.executor]
-        [lamina.core]))
+  (:require [com.klauer.java-watcher.files :as files]
+            [lamina.executor :as lamexecutor]
+            [lamina.core :as lamcore]))
 
 (set! *warn-on-reflection* true)
 
@@ -56,16 +56,16 @@
 (defn pipeline-events-with
   "Start a Lamina Pipeline on the watch and run function"
   [^WatchService watch func]
-  (run-pipeline 
+  (lamcore/run-pipeline 
       watch
       ;; blocks for all possible events
-      #(task (.take ^WatchService %))
+      #(lamexecutor/task (.take ^WatchService %))
       ;; needs to determine which path and event type was invoked,
       ;; then find the functions to call on it.
       #(process-events % func)
       (fn [restartable] 
         (if restartable
-          (restart)))))
+          (lamcore/restart)))))
 
 (defn register-watch 
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
