@@ -63,13 +63,13 @@
       ;; needs to determine which path and event type was invoked,
       ;; then find the functions to call on it.
       #(process-events % func)
-      (fn [restartable] 
+      (fn [restartable]
         (if restartable
           (lamcore/restart)))))
 
-(defn register-watch 
+(defn register-watch
   "Make a watch on a path 'path', given a seq of kinds (see 'kinds')
-   and passes these events to the `func` with any other arguments `args`" 
+   and passes these events to the `func` with any other arguments `args`"
   [path watch-types func & args]
   (let [p ^Path (files/make-path path)
         types (into-array (map kinds watch-types))
