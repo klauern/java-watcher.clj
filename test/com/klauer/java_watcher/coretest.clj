@@ -27,6 +27,8 @@
 (future-fact "can use relative paths with make-path")
 (future-fact "can use ~ in make-path")
 (future-fact "relative paths in make-path resolve to fully-qualified paths")
+(future-fact "registering a directory recursively registers sub-directories")
+(future-fact "if file system event is creating a directory, that sub-directory is registered")
 
 (fact "can make paths from strings"
       (instance? java.nio.file.Path (files/make-path "/usr/local")) => truthy)

@@ -30,6 +30,8 @@
 (defn register-with 
   "Register a directory to watch for the given event kinds"
   [^Path directory ^WatchService watch watch-kinds]
+  ;; also should recurse sub-directories with the same thing
+  ;; see http://codingjunkie.net/eventbus-watchservice/ for some inspiration
   (.register directory watch watch-kinds))
 
 (defn unroll-event
