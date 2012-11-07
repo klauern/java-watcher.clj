@@ -13,7 +13,7 @@
             ;; indicates that events may have been lost or discarded
             :overflow StandardWatchEventKinds/OVERFLOW})
 
-(def all-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_DELETE StandardWatchEventKinds/ENTRY_MODIFY]))
+(def all-kinds (into-array (vals (dissoc kinds :overflow))))
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
 (def registered-watches (atom #{}))
 
