@@ -13,8 +13,25 @@
 
 
 (set! *warn-on-reflection* true)
+
+(def kinds {:create StandardWatchEventKinds/ENTRY_CREATE
+            :delete StandardWatchEventKinds/ENTRY_DELETE
+            :modify StandardWatchEventKinds/ENTRY_MODIFY
+            ;; indicates that events may have been lost or discarded
+            :overflow StandardWatchEventKinds/OVERFLOW})
+
 (def watcher (atom (.. FileSystems getDefault newWatchService)))
-(def watch-kinds (into-array ^WatchEvent$Kind [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE]))
+(def watch-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE]))
+(def registry (atom {}))
+(def watch-service (atom (.. FileSystems getDefault newWatchService)))
+
+;; A Path has an event that we unroll in to this type
+(defrecord PathEvent [path event-type])
+;; We register a path and store the function to call on the types provided
+(defrecord FunctionRegistration [path types recursive?])
+;; Each registered directory has a key with it and a path, so we can look up the key and path with this
+;; record.
+(defrecord PathKey [watch-key path])
 
 (defn register-dir
   "Register the given directory to the WatchService for all known types of events (Create, Modify, Delete)"
@@ -28,3 +45,10 @@
     ^FileVisitResult (preVisitDirectory [^Path dir ^BasicFileAttributes attrs]
                                         (register-dir dir)
                                         FileVisitResult/CONTINUE))))
+
+
+(defn register
+  [^String path function recursive?]
+  (let [path (f/make-path path)
+        ])
+  )
