@@ -53,7 +53,10 @@
   [^WatchKey key func]
   (if (.isValid key)
     (let [events (.pollEvents key)
-          unrolled-events (map #(unroll-event %1 key) events)]
+          unrolled-events (map #(unroll-event %1 key) events)
+          ;; also re-register recursive subdirectories if the events are directory create events
+          ;; and the EventSubscription says to register recursive dirs
+          ]
       ;; lookup function to call based on the :path and :kind
       (dorun (map func unrolled-events))
       (.reset key))))
