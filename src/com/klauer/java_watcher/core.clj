@@ -12,12 +12,15 @@
             :modify StandardWatchEventKinds/ENTRY_MODIFY
             ;; indicates that events may have been lost or discarded
             :overflow StandardWatchEventKinds/OVERFLOW})
+
+(def all-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_DELETE StandardWatchEventKinds/ENTRY_MODIFY]))
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
 (def registered-watches (atom #{}))
 
-(defrecord PathEvent [path events])
+(defrecord EventSubscription [path subscribed-events function recursive?])
+;; (defrecord PathEvent [subscribed-events function recursive?])
 (defrecord Watch [watchkey pathevents functions])
-(def registered-watch-path-events (atom #{}))
+(def registered-watch-path-events (atom {}))
 
 (defn unregister-watch 
   "Remove a watch from the registered watch list, as well as cancelling any future
@@ -76,9 +79,11 @@
   (let [p ^Path (files/make-path path)
         types (into-array (map kinds watch-types))
         watch (register-with p @watch-service types)
-        path-event (->PathEvent (.toString p) watch-types)
-        watch-rec (->Watch watch path-event func)]
-    (swap! registered-watch-path-events conj watch-rec) ;; will eventually replace registered-watches
+        ;; path-event (->PathEvent (.toString p) watch-types)
+        event-sub (->EventSubscription (.toString p) types func true)
+       ;; watch-rec (->Watch watch path-event func)
+        ]
+    ;; (swap! registered-watch-path-events conj watch-rec) ;; will eventually replace registered-watches
     (swap! registered-watches conj watch)
     ;; TODO: store the func in the registered-watches as an array of funcs to call on the watch.
     (pipeline-events-with @watch-service func)
