@@ -22,15 +22,15 @@
 (defrecord Watch [watchkey pathevents functions])
 (def registered-watch-path-events (atom {}))
 
-(defn unregister-watch 
+(defn unregister-watch
   "Remove a watch from the registered watch list, as well as cancelling any future
-   event monitoring that was registered with it" 
+   event monitoring that was registered with it"
   [^WatchKey watch]
   (.cancel watch)
   (swap! registered-watches disj watch)
   watch)
 
-(defn register-with 
+(defn register-with
   "Register a directory to watch for the given event kinds"
   [^Path directory ^WatchService watch watch-kinds]
   ;; also should recurse sub-directories with the same thing
@@ -61,7 +61,7 @@
 (defn pipeline-events-with
   "Start a Lamina Pipeline on the watch and run function"
   [^WatchService watch func]
-  (lamcore/run-pipeline 
+  (lamcore/run-pipeline
       watch
       ;; blocks for all possible events
       #(lamexecutor/task (.take ^WatchService %))
