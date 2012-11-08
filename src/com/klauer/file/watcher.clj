@@ -1,4 +1,4 @@
-(ns com.klauer.java-watcher.watcher
+(ns com.klauer.file.watcher
   (:import [java.nio.file Files SimpleFileVisitor FileVisitResult FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]
            [java.nio.file.attribute BasicFileAttributes])
@@ -28,7 +28,7 @@
 ;; A Path has an event that we unroll in to this type
 (defrecord PathEvent [path event-type])
 ;; We register a path and store the function to call on the types provided
-(defrecord FunctionRegistration [path types recursive?])
+(defrecord FunctionRegistration [function path types recursive?])
 ;; Each registered directory has a key with it and a path, so we can look up the key and path with this
 ;; record.
 (defrecord PathKey [watch-key path])
@@ -38,7 +38,7 @@
   [^Path dir]
   (let [key (.register dir @watcher watch-kinds)]))
 
-(defn register-all
+(defn register-dir-recursive
   "Register a directory and all it's sub-directories recursively based on the start Path passed in"
   [^Path start]
    (Files/walkFileTree start (proxy [SimpleFileVisitor] []
@@ -46,9 +46,12 @@
                                         (register-dir dir)
                                         FileVisitResult/CONTINUE))))
 
-
 (defn register
-  [^String path function recursive?]
-  (let [path (f/make-path path)
-        ])
-  )
+  [^String path-str function recursive?]
+  (let [path ^Path (f/make-path path-str)
+        registration (->FunctionRegistration function (.toString path) (keys kinds) recursive?)]
+    (if recursive?
+      (register-dir-recursive path)
+      (register-dir path))
+    (swap! registry update-in [(.toString path)] conj registration)
+    ))
