@@ -54,7 +54,6 @@
     ^FileVisitResult (preVisitDirectory [^Path dir ^BasicFileAttributes attrs]
                                         (register-dir dir)
                                         FileVisitResult/CONTINUE))))
-
 (defn register
   [^String path-str function recursive?]
   (let [path ^Path (f/make-path path-str)
@@ -63,4 +62,5 @@
       (register-dir-recursive path)
       (register-dir path))
     (swap! registry update-in [(.toString path)] conj registration)
+    registration
     ))
