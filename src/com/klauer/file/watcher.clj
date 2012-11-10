@@ -36,7 +36,7 @@
 (defn register-dir
   "Register the given directory to the WatchService for all known types of events (Create, Modify, Delete)"
   [^Path dir]
-  (let [key (.register dir @watcher watch-kinds)]))
+  (.register dir @watcher watch-kinds))
 
 (defn register-dir-recursive
   "Register a directory and all it's sub-directories recursively based on the start Path passed in"

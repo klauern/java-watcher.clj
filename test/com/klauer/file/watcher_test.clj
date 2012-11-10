@@ -8,15 +8,19 @@
            [java.nio.file.attribute FileAttribute]))
 
 (defn dummy-register
-  ([] (register (fs/temp-dir "tmp") #(println "HI") false)))
+  ([] (register (.toString (.toPath (fs/temp-dir "tmp"))) #(println "HI") false)))
 
-(future-fact "dirs registered are stored in a registry"
 (fact "can make path from String"
       (instance? java.nio.file.Path (files/make-path (.toString (fs/temp-dir "tmp")))) => truthy)
 (fact "can make path from File"
       (instance? java.nio.file.Path (files/make-path (fs/temp-dir "tmp"))) => truthy)
+
+(fact "dirs registered are stored in a registry"
              (let [reg (dummy-register)]
-               (> 0 (count registry)) => truthy)
-             (provided registry => {}))
+               (count (keys @registry)) => 1)
+             (provided registry => (atom {})))
 (future-fact "directories are registered recursively by default")
 (future-fact "directory creation events get registered")
+(future-fact "can register a directory"
+      (instance? java.nio.file.WatchKey (-> "tmp" fs/temp-dir .toPath .toString register-dir)) => truthy)
+(future-fact "can register subdirectories recursively")
