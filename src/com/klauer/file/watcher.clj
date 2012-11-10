@@ -33,10 +33,19 @@
 ;; record.
 (defrecord PathKey [watch-key path])
 
-(defn register-dir
-  "Register the given directory to the WatchService for all known types of events (Create, Modify, Delete)"
-  [^Path dir]
-  (.register dir @watcher watch-kinds))
+(defprotocol RegistersDirectories
+  "Registers a directory with a WatchService"
+  (register-dir [path]))
+
+(extend-protocol RegistersDirectories
+  String
+  (register-dir 
+    [^String path]
+  (.register ^Path (f/make-path path) @watcher watch-kinds))
+  Path
+  (register-dir
+    [^Path path]
+  (.register path @watcher watch-kinds)))
 
 (defn register-dir-recursive
   "Register a directory and all it's sub-directories recursively based on the start Path passed in"

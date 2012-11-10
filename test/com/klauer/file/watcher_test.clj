@@ -23,4 +23,7 @@
 (future-fact "directory creation events get registered")
 (future-fact "can register a directory"
       (instance? java.nio.file.WatchKey (-> "tmp" fs/temp-dir .toPath .toString register-dir)) => truthy)
-(future-fact "can register subdirectories recursively")
+(future-fact "can register subdirectories recursively")(fact "can register a directory with a Path"
+      (instance? java.nio.file.WatchKey (register-dir (-> "tmp" fs/temp-dir .toPath))) => truthy)
+(fact "can register a directory with a Path's String"
+      (instance? java.nio.file.WatchKey (register-dir (-> "tmp" fs/temp-dir .toPath .toString))) => truthy)
