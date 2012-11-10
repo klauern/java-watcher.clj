@@ -5,10 +5,24 @@
 (set! *warn-on-reflection* true)
 
 
-(defn make-path 
-  "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
-  [^String directory]
-  (Paths/get directory (into-array String "")))
+;(defn make-path 
+;  "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
+;  [^String directory]
+;  (Paths/get directory (into-array String "")))
+
+(defprotocol MakesPath
+  "Makes a Path"
+  (make-path [path]))
+
+(extend-protocol MakesPath
+  String
+  (make-path
+    [path]
+    (Paths/get path (into-array String "")))
+  File
+  (make-path
+    [path]
+    (.toPath path)))
 
 (defprotocol FileExistsCheck
   "Check for file existence based on the type passed in"
