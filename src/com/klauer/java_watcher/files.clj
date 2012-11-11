@@ -24,11 +24,11 @@
     [path]
     (.toPath path)))
 
-(defprotocol FileExistsCheck
+(defprotocol ChecksForFileExistence
   "Check for file existence based on the type passed in"
   (exists? [path]))
 
-(extend-protocol FileExistsCheck
+(extend-protocol ChecksForFileExistence
   String
   (exists?
     [path]
