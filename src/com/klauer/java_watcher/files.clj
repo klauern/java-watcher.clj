@@ -1,4 +1,5 @@
 (ns com.klauer.java-watcher.files
+  (:require [fs.core :as fs])
   (:import [java.nio.file Files Path Paths LinkOption]
            [java.io File]))
 
@@ -41,7 +42,3 @@
   (exists?
     [path]
     (.exists path)))
-
-(defn create-temp-file
-  [^Path path ^String filename]
-  )
