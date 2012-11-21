@@ -15,6 +15,13 @@
         (get @registry (:path reg)) => truthy
         (-> (get @registry (:path reg)) first :recursive?) => false))
 
+
+(future-fact "file delete events are triggered")
+(future-fact "file modification events are triggered")
+(future-fact "file create events are triggered")
+(future-fact "directory creation events are triggered")
+(future-fact "directory modification events are triggered")
+(future-fact "directory deletion events are triggered")
 (future-fact "directory creation events get registered")
 (future-fact "can register subdirectories recursively")
 
