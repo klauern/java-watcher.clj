@@ -12,7 +12,8 @@
 
 (fact "dirs registered are stored in a registry"
       (let [reg (dummy-register)]
-        (count (keys @registry)) => > 1))
+        (get @registry (:path reg)) => truthy
+        (-> (get @registry (:path reg)) first :recursive?) => false))
 
 (future-fact "directory creation events get registered")
 (future-fact "can register subdirectories recursively")
