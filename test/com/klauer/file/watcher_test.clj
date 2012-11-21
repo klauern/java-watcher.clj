@@ -37,6 +37,6 @@
       (instance? java.nio.file.WatchKey (register-dir (-> "tmp" fs/temp-dir .toPath .toString))) => truthy)
 
 (fact "registration is recursive by default"
-      (let [reg (register (-> (fs/temp-dir "tmp") .toPath .toString) #(println "Hello"))]
-        (count (keys @registry)) => > 1
-        (-> (first @registry) => truthy)))
+      (let [path (-> (fs/temp-dir "tmp") .toPath .toString)
+            reg (register path #(println "Hello"))]
+        (-> (get @registry path) first :recursive?) => truthy))
