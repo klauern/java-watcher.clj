@@ -18,17 +18,21 @@
 (defn watches []
   @registered-watches)
 
-(future-fact "each event is passed to the user function separately")
-(future-fact "can unroll the event into a map")
-(future-fact "functions cease being called after unregistering them")
-(future-fact "functions are called repeatedly on event changes")
-(future-fact "can register multiple functions to be called on the same event subscription")
-(future-fact "unregistering a watch removes all functions to be called on it")
-(future-fact "can use relative paths with make-path")
-(future-fact "can use ~ in make-path")
-(future-fact "relative paths in make-path resolve to fully-qualified paths")
-(future-fact "registering a directory recursively registers sub-directories")
-(future-fact "if file system event is creating a directory, that sub-directory is registered")
+(comment
+  ;; this is likely to be removed when the other watcher gets implemented
+  ;; completely.  Actually, this entire test file will go away.
+  (future-fact "each event is passed to the user function separately")
+  (future-fact "can unroll the event into a map")
+  (future-fact "functions cease being called after unregistering them")
+  (future-fact "functions are called repeatedly on event changes")
+  (future-fact "can register multiple functions to be called on the same event subscription")
+  (future-fact "unregistering a watch removes all functions to be called on it")
+  (future-fact "can use relative paths with make-path")
+  (future-fact "can use ~ in make-path")
+  (future-fact "relative paths in make-path resolve to fully-qualified paths")
+  (future-fact "registering a directory recursively registers sub-directories")
+  (future-fact "if file system event is creating a directory, that sub-directory is registered")
+)
 
 (fact "can make paths from strings"
       (instance? java.nio.file.Path (files/make-path "/usr/local")) => truthy)
