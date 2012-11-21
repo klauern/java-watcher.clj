@@ -54,13 +54,17 @@
     ^FileVisitResult (preVisitDirectory [^Path dir ^BasicFileAttributes attrs]
                                         (register-dir dir)
                                         FileVisitResult/CONTINUE))))
+
 (defn register
-  [^String path-str function recursive?]
-  (let [path ^Path (f/make-path path-str)
-        registration (->FunctionRegistration function (.toString path) (keys kinds) recursive?)]
-    (if recursive?
-      (register-dir-recursive path)
-      (register-dir path))
-    (swap! registry update-in [(.toString path)] conj registration)
-    registration
-    ))
+  "register a directory with a function"
+  ([^String path-str function]
+    (register path-str function true))
+  ([^String path-str function recursive?]
+    (let [path ^Path (f/make-path path-str)
+          registration (->FunctionRegistration function (.toString path) (keys kinds) recursive?)]
+      (if recursive?
+        (register-dir-recursive path)
+        (register-dir path))
+      (swap! registry update-in [(.toString path)] conj registration)
+      registration
+      )))
