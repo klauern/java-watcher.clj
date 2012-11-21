@@ -33,6 +33,18 @@
 ;; record.
 (defrecord PathKey [watch-key path])
 
+(defn unroll-event
+  "Convert a WatchEvent into a PathEvent"
+  [^WatchEvent event ^WatchKey key]
+  (let [dir (.watchable key)
+        ;; This is how you get an absolute path, because, surprise!, #toAbsolutePath
+        ;; doesn't work that way... See http://stackoverflow.com/a/7802029/7008
+        ;; for my awful discovery.
+        context (.context event)
+        kind (.kind event)
+        full_path (.toString (.resolve ^Path dir ^Path context))]
+    (->PathEvent full_path kind)))
+
 (defprotocol RegistersDirectories
   "Registers a directory with a WatchService"
   (register-dir [path]))
