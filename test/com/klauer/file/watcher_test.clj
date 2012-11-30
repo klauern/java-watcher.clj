@@ -8,7 +8,9 @@
            [java.nio.file.attribute FileAttribute]))
 
 (defn dummy-register
-  ([] (register (.toString (.toPath (fs/temp-dir "tmp"))) #(println "HI") false)))
+  ([] (register (.toString (.toPath (fs/temp-dir "tmp"))) #(println "HI") false))
+  ([fn] (register (.toString (.toPath (fs/temp-dir "tmp"))) fn false)))
+
 
 (fact "dirs registered are stored in a registry"
       (let [reg (dummy-register)]
@@ -33,6 +35,11 @@
 ;; - multiple watches can act on the same event
 ;; -? can unsubscribe watches (not sure about this one, but I suppose it's possible since the registry is separate
 ;;    from the blocking watch
+
+(fact "registration doesn't call the function registered"
+      (do (dummy-register println)) => truthy
+      (provided
+        (println) => nil :times 0))
 
 (fact "can make path from String"
       (instance? java.nio.file.Path (files/make-path (.toString (fs/temp-dir "tmp")))) => truthy)
