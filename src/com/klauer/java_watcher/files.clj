@@ -42,3 +42,9 @@
   (exists?
     [path]
     (.exists path)))
+
+(defn create-empty-file
+  "Given a directory and a filename, create an empty file in that directory"
+  [^File directory
+   ^String filename]
+  (fs/create (File. directory filename)))

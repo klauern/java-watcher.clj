@@ -18,7 +18,10 @@
         (-> (get @registry (:path reg)) first :recursive?) => false))
 
 
-(future-fact "file delete events are triggered")
+(future-fact "file delete events are triggered"
+             (let [reg (dummy-register println)]
+               (fs/create (:path reg)))
+             (provided (println) => nil :times 1))
 (future-fact "file modification events are triggered")
 (future-fact "file create events are triggered")
 (future-fact "directory creation events are triggered")
