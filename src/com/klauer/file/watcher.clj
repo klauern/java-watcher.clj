@@ -20,10 +20,9 @@
             ;; indicates that events may have been lost or discarded
             :overflow StandardWatchEventKinds/OVERFLOW})
 
-(def watcher (atom (.. FileSystems getDefault newWatchService)))
+(def watch-service (atom ^WatchService (.. FileSystems getDefault newWatchService)))
 (def watch-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE]))
 (def registry (atom {}))
-(def watch-service (atom (.. FileSystems getDefault newWatchService)))
 
 ;; A Path has an event that we unroll in to this type
 (defrecord PathEvent [path event-type])
@@ -53,11 +52,11 @@
   String
   (register-dir 
     [^String path]
-  (.register ^Path (f/make-path path) @watcher watch-kinds))
+  (.register ^Path (f/make-path path) @watch-service watch-kinds))
   Path
   (register-dir
     [^Path path]
-  (.register path @watcher watch-kinds)))
+  (.register path @watch-service watch-kinds)))
 
 (defn register-dir-recursive
   "Register a directory and all it's sub-directories recursively based on the start Path passed in"
@@ -79,4 +78,3 @@
         (register-dir path))
       (swap! registry update-in [(.toString path)] conj registration)
       registration
-      )))
