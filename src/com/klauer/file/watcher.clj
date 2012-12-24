@@ -31,7 +31,7 @@
 ;; record.
 (defrecord PathKey [watch-key path])
 
-(defn unroll-event
+(defn convert-to-path-event
   "Convert a WatchEvent into a PathEvent"
   [^WatchEvent event ^WatchKey key]
   (let [dir (.watchable key)
@@ -84,7 +84,7 @@
   [^WatchKey key func]
   (if (.isValid key)
     (let [events (.pollEvents key)
-          unrolled-events (map #(unroll-event %1 key) events)
+          unrolled-events (map #(convert-to-path-event %1 key) events)
           ;; also re-register recursive subdirectories if the events are directory create events
           ;; and the EventSubscription says to register recursive dirs
           ]
