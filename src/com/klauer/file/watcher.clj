@@ -11,7 +11,6 @@
 ;; I'm hoping to at least use this as the basis for a revamping of the process that I have
 ;; implemented in core, but I am not sure what is going on entirely yet.
 
-
 (set! *warn-on-reflection* true)
 
 (def kinds {:create StandardWatchEventKinds/ENTRY_CREATE
@@ -78,3 +77,23 @@
         (register-dir path))
       (swap! registry update-in [(.toString path)] conj registration)
       registration
+      )))
+
+(defn process-events
+  "Taking a WatchKey, process the events that occurred in it, and run the function across all of them"
+  [^WatchKey key func]
+  (if (.isValid key)
+    (let [events (.pollEvents key)
+          unrolled-events (map #(unroll-event %1 key) events)
+          ;; also re-register recursive subdirectories if the events are directory create events
+          ;; and the EventSubscription says to register recursive dirs
+          ]
+      ;; lookup function to call based on the :path and :kind
+      (dorun (map func unrolled-events))
+      (.reset key))))
+
+(defn loop-watch []
+  (loop [key (.take ^WatchService @watch-service)]
+    (process-events key)
+    (.reset key)
+    (recur (.take ^WatchService @watch-service))))
