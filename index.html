@@ -34,7 +34,7 @@
 
 <p><a href="http://travis-ci.org/klauern/java-watcher.clj"><img src="https://secure.travis-ci.org/klauern/java7-watcher.clj.png" alt="Build Status"></a></p>
 
-<p>Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around <a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java 7's WatchService</a>, which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X <a href="http://stackoverflow.com/a/11182515/7008">has no native file watching service</a>, but rather uses a poll-based approach.</p>
+<p>Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around <a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java 7's WatchService</a>, which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X <a href="http://stackoverflow.com/a/11182515/7008">has no native file watching service</a>, but rather uses a poll-based approach.  Or rather, if you don't care that it uses a polling-based event tracker, go ahead and use this, but it won't be as performant as other options.</p>
 
 <p>Maybe I will create or modify this to use something like <a href="http://jnotify.sourceforge.net/">JNotify</a>, which has cross-platform binaries for native file changes, and it works without Java 7.</p>
 
@@ -49,10 +49,17 @@
 
 <h3>Syntax-sugary way</h3>
 
-<div class="highlight"><pre><span class="p">(</span><span class="nf">make-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[(</span><span class="ss">:modify</span> <span class="nv">kinds</span><span class="p">)]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
+<div class="highlight"><pre><span class="p">(</span><span class="nf">register-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[</span><span class="ss">:modify</span><span class="p">]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
 </pre></div>
 
-<p>Where <code>kinds</code> are one or more of <code>:create</code>, <code>:modify</code>, or <code>:delete</code>, which mirror Java's <code>StandardWatchEventKinds/ENTRY_CREATE</code>, <code>ENTRY_DELETE</code>, and/or <code>ENTRY_MODIFY</code>.</p>
+<p>The arguments are "path", [:modify :create :delete], function.  The vector can be one of :</p>
+
+<pre><code>* :create (creation events)
+* :modify (create and change events)
+* :delete (file/directory deletion)
+</code></pre>
+
+<p>Where these <code>kinds</code> mirror Java's <code>StandardWatchEventKinds/ENTRY_CREATE</code>, <code>ENTRY_DELETE</code>, and/or <code>ENTRY_MODIFY</code>.</p>
 
 <p>When something changes in that directory:</p>
 
@@ -82,24 +89,26 @@ hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/di
 </pre></div>
 </li>
 <li>
-<p>Create a watch service</p>
-
-<div class="highlight"><pre><span class="p">(</span><span class="k">def </span><span class="nv">watcher</span> <span class="p">(</span><span class="nf">make-watcher</span> <span class="nv">example-directory</span><span class="p">))</span>  <span class="c1">;; needs to be a java.nio.file.Path object (as of right now)</span>
-</pre></div>
-</li>
-<li>
 <p>Register the service so it tracks whatever <code>kinds</code> of changes to whichever directory/ies you want: <code>:create</code>, <code>:modify</code>, or <code>:delete</code>.</p>
 
 <div class="highlight"><pre><span class="c1">;; can use any combination of elements in `kinds`, even `(vals kinds)` itself</span>
-<span class="p">(</span><span class="nf">register-with</span> <span class="nv">watcher</span> <span class="p">[(</span><span class="ss">:create</span> <span class="nv">kinds</span><span class="p">)</span> <span class="p">(</span><span class="ss">:delete</span> <span class="nv">kinds</span><span class="p">)]</span> <span class="nv">example-directory</span><span class="p">)</span>
+<span class="c1">;; `@watch-service` is an atom for the FileSystem watch service.</span>
+<span class="p">(</span><span class="nf">register-with</span> <span class="nv">example-directory</span> <span class="err">@</span><span class="nv">watch-service</span> <span class="p">[(</span><span class="ss">:create</span> <span class="nv">kinds</span><span class="p">)</span> <span class="p">(</span><span class="ss">:delete</span> <span class="nv">kinds</span><span class="p">)])</span>
 </pre></div>
 </li>
 <li>
-<p>call <code>wait-for</code> and pass in a function to call when something changes:</p>
+<p>call <code>pipeline-events-with</code> and pass in a function to call when something changes:</p>
 
-<div class="highlight"><pre><span class="p">(</span><span class="nf">wait-for</span> <span class="nv">watcher</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"Oh Happy Day"</span><span class="p">)</span> <span class="nv">extra</span> <span class="nv">args</span> <span class="nv">here</span><span class="p">)</span>
-<span class="c1">;; this is recursive and blocking.  It will execute your block on the event-change,</span>
-<span class="c1">;; then start over to wait for the next event</span>
+<div class="highlight"><pre><span class="p">(</span><span class="nf">pipeline-events-with</span> <span class="err">@</span><span class="nv">watch-service</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"Oh Happy Day"</span><span class="p">)</span> <span class="nv">extra</span> <span class="nv">args</span> <span class="nv">here</span><span class="p">)</span>
+<span class="c1">;; This is asynchronous through the use of the ever-nifty Lamina project (https://github.com/ztellman/lamina).</span>
+</pre></div>
+</li>
+<li>
+<p>All registered watches are stored in the <code>*registered-watches*</code> atom, and can be removed by calling <code>unregister-watch</code>:</p>
+
+<div class="highlight"><pre><span class="p">(</span><span class="nf">unregister-watch</span> <span class="p">(</span><span class="nb">first </span><span class="err">@</span><span class="nv">*registered-watches*</span><span class="p">))</span>
+<span class="c1">;; this not only removes it from the atom, but unregisters your passed-in function and any</span>
+<span class="c1">;; handling of future file-system events it was registered for.</span>
 </pre></div>
 </li>
 </ol><h2>Things Missing</h2>
@@ -108,15 +117,22 @@ hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/di
 
 <ol>
 <li>tests</li>
-<li>better model around <code>futures</code>, or some asynchronous <code>promise</code> or something.</li>
-<li>Controlling these watches:
+<li>more fine-grained control of these watches:
 
 <ul>
 <li>start</li>
 <li>stop</li>
 <li>pause</li>
-<li>delete</li>
 <li>etc.</li>
+</ul>
+</li>
+<li>defining multiple functions to be called with the same watch</li>
+<li>redefining a watch and it's function to be called</li>
+<li>better granularity on functions and directory events:
+
+<ul>
+<li>be able to call a function for one directory event (:delete) and another for a different
+event (:create) in the same directory</li>
 </ul>
 </li>
 </ol><h2>Reference</h2>
