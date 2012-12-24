@@ -4,14 +4,21 @@ Notes on storage and persistence of the watches
 
   + watch service
   + watch keys (which register the events to watch and what directory to watch)
+  + registration details (
+
 
 When processing events:
 
   - poll, poll(timeout), or take returns a key
   - key.pollEvents() returns a list of WatchEvents
+  - key.take() waits until there's something to get back, then returns a list of
+    WatchEvents
   - event.kind returns the kind of event, and in it the path that was changed
   - key.cancel() will cancel the key
     - isValid() checks to see if the key is still valid for processing.
+  - directory creation isn't recursive, so newly created directories, or
+    paths with subdirectories in them, will not be registered, and thus not track
+    events for.
 
 
 11/7/2012 thoughts
@@ -35,14 +42,21 @@ looking at a link for [Walking a File Tree](http://docs.oracle.com/javase/tutori
 while the code is simple enough to understand, it's messy in implementation:
 
 * how do I store events?
-* How does WatchService differentiate between :modify and :create and :delete events?
 * How do I unregister a watch for one type but not others?
 
-THese are all solvable, but the implementation I chose made them very complicated.  I think in the
+These are all solvable, but the implementation I chose made them very complicated.  I think in the
 spirit of simplicity, it's best to just register a directory and pass a function in.  The function
 SHOULD be capable of handling :create :modify and :delete events on it's own, rather than having
 the service it's registered to delegate functions to call on it.  The implementation I'm thinking
 would be something similar to the following:
+
+-- Note (12/14/2012) - It is too much to ask the user to track it's own events.
+                       If a user were to register a directory but only care about
+                       creation events, having them parse unnecessary events
+                       is both frustrating and unnecessary.  Defaults should
+                       be provided (automatic tracking of all C/M/D events) but
+                       easily configurable upon registration.
+
 
 ```clj
 (register-dir "Directory" #(function))
@@ -53,3 +67,6 @@ delegates responsibility to the function to handle or ignore the kinds of events
 not sure if this is simpler than having the API just call out the functions that registered for
 the event types, but I think it would give the function that the user passes in more flexibility
 to figure out how it wants to handle things.
+
+12/14/2012
+----------
