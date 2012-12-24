@@ -1,6 +1,11 @@
 # java-watcher.clj
 [![Build Status](https://secure.travis-ci.org/klauern/java7-watcher.clj.png)](http://travis-ci.org/klauern/java-watcher.clj)
 
+## NOTE:
+This project is really really in flux.  It's not at a usable state (and there are actually two divergent API's doing the same thing, neither of which is working 100% at this point).  Use at your own risk.
+
+## Intro
+
 Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around [Java 7's WatchService](http://docs.oracle.com/javase/tutorial/essential/io/notification.html), which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X [has no native file watching service](http://stackoverflow.com/a/11182515/7008), but rather uses a poll-based approach.  Or rather, if you don't care that it uses a polling-based event tracker, go ahead and use this, but it won't be as performant as other options.
 
 Maybe I will create or modify this to use something like [JNotify](http://jnotify.sourceforge.net/), which has cross-platform binaries for native file changes, and it works without Java 7.
