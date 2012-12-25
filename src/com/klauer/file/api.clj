@@ -3,6 +3,8 @@
   (:require [com.klauer.file.watcher :as watcher]))
 
 (import-fn watcher/register)
+
 (import-fn watcher/register-dir)
+
 (import-fn watcher/register-dir-recursive)
 
