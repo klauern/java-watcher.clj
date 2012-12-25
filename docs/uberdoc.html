@@ -3029,7 +3029,91 @@ net.brehaut.ClojureTools = (function (SH) {
   };
 })(SyntaxHighlighter);
 </script><title>com.klauer/java-watcher -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">com.klauer/java-watcher</h1><h2 class="project-version">0.1.0-SNAPSHOT</h2><br /><p>Thin wrapper around Java 7's WatchService</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">lamina</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0-beta7</td></tr><tr><td class="dep-name">midje</td><td class="dotted"><hr /></td><td class="dep-version">1.5-alpha2</td></tr><tr><td class="dep-name">fs</td><td class="dotted"><hr /></td><td class="dep-version">1.3.2</td></tr><tr><td class="dep-name">com.stuartsierra/lazytest</td><td class="dotted"><hr /></td><td class="dep-version">1.2.3</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#com.klauer.java-watcher.core">com.klauer.java-watcher.core</a></li><li><a href="#com.klauer.java-watcher.files">com.klauer.java-watcher.files</a></li><li><a href="#com.klauer.java-watcher.watcher">com.klauer.java-watcher.watcher</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.java-watcher.core" name="com.klauer.java-watcher.core"><h1 class="project-name">com.klauer.java-watcher.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.4.0</td></tr><tr><td class="dep-name">lamina</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0-beta8</td></tr><tr><td class="dep-name">potemkin</td><td class="dotted"><hr /></td><td class="dep-version">0.1.6</td></tr><tr><td class="dep-name">midje</td><td class="dotted"><hr /></td><td class="dep-version">1.5-alpha3</td></tr><tr><td class="dep-name">fs</td><td class="dotted"><hr /></td><td class="dep-version">1.3.2</td></tr><tr><td class="dep-name">com.stuartsierra/lazytest</td><td class="dotted"><hr /></td><td class="dep-version">1.2.3</td></tr><tr><td class="dep-name">vimclojure/server</td><td class="dotted"><hr /></td><td class="dep-version">2.3.3</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#com.klauer.file.api">com.klauer.file.api</a></li><li><a href="#com.klauer.file.watcher">com.klauer.file.watcher</a></li><li><a href="#com.klauer.java-watcher.core">com.klauer.java-watcher.core</a></li><li><a href="#com.klauer.java-watcher.files">com.klauer.java-watcher.files</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.file.api" name="com.klauer.file.api"><h1 class="project-name">com.klauer.file.api</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns com.klauer.file.api
+  (:use [potemkin :only [import-fn]])
+  (:require [com.klauer.file.watcher :as watcher]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(import-fn watcher/register)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(import-fn watcher/register-dir)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(import-fn watcher/register-dir-recursive)</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.file.watcher" name="com.klauer.file.watcher"><h1 class="project-name">com.klauer.file.watcher</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(ns com.klauer.file.watcher
+  (:import [java.nio.file Files SimpleFileVisitor FileVisitResult FileSystems Path Paths StandardWatchEventKinds
+            WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]
+           [java.nio.file.attribute BasicFileAttributes])
+  (:require [com.klauer.java-watcher.files :as files]
+            [lamina.executor :as lamexecutor]
+            [lamina.core :as lamcore]
+            [com.klauer.java-watcher.files :as f]))</pre></td></tr><tr><td class="docs"><p>this takes all sorts of 'inspiration' from Oracle's example code for using the WatchService.
+I'm hoping to at least use this as the basis for a revamping of the process that I have
+implemented in core, but I am not sure what is going on entirely yet.</p>
+</td><td class="codes"></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def kinds {:create StandardWatchEventKinds/ENTRY_CREATE
+            :delete StandardWatchEventKinds/ENTRY_DELETE
+            :modify StandardWatchEventKinds/ENTRY_MODIFY
+            ;; indicates that events may have been lost or discarded
+            :overflow StandardWatchEventKinds/OVERFLOW})</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(def watch-service (atom ^WatchService (.. FileSystems getDefault newWatchService)))
+(def watch-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE]))
+(def registry (atom {}))</pre></td></tr><tr><td class="docs"><p>A Path has an event that we unroll in to this type</p>
+</td><td class="codes"><pre class="brush: clojure">(defrecord PathEvent [path event-type])</pre></td></tr><tr><td class="docs"><p>We register a path and store the function to call on the types provided</p>
+</td><td class="codes"><pre class="brush: clojure">(defrecord FunctionRegistration [function path types recursive?])</pre></td></tr><tr><td class="docs"><p>Each registered directory has a key with it and a path, so we can look up the key and path with this
+record.</p>
+</td><td class="codes"><pre class="brush: clojure">(defrecord PathKey [watch-key path])</pre></td></tr><tr><td class="docs"><p>Convert a WatchEvent into a PathEvent</p>
+</td><td class="codes"><pre class="brush: clojure">(defn convert-to-path-event
+  [^WatchEvent event ^WatchKey key]
+  (let [dir (.watchable key)
+        ;; This is how you get an absolute path, because, surprise!, #toAbsolutePath
+        ;; doesn't work that way... See http://stackoverflow.com/a/7802029/7008
+        ;; for my awful discovery.
+        context (.context event)
+        kind (.kind event)
+        full_path (.toString (.resolve ^Path dir ^Path context))]
+    (-&gt;PathEvent full_path kind)))</pre></td></tr><tr><td class="docs"><p>Registers a directory with a WatchService</p>
+</td><td class="codes"><pre class="brush: clojure">(defprotocol RegistersDirectories
+  (register-dir [path]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(extend-protocol RegistersDirectories
+  String
+  (register-dir 
+    [^String path]
+  (.register ^Path (f/make-path path) @watch-service watch-kinds))
+  Path
+  (register-dir
+    [^Path path]
+  (.register path @watch-service watch-kinds)))</pre></td></tr><tr><td class="docs"><p>Register a directory and all it's sub-directories recursively based on the start Path passed in</p>
+</td><td class="codes"><pre class="brush: clojure">(defn register-dir-recursive
+  [^Path start]
+   (Files/walkFileTree start (proxy [SimpleFileVisitor] []
+    ^FileVisitResult (preVisitDirectory [^Path dir ^BasicFileAttributes attrs]
+                                        (register-dir dir)
+                                        FileVisitResult/CONTINUE))))</pre></td></tr><tr><td class="docs"><p>register a directory with a function</p>
+</td><td class="codes"><pre class="brush: clojure">(defn register
+  ([^String path-str function]
+    (register path-str function true))
+  ([^String path-str function recursive?]
+    (let [path ^Path (f/make-path path-str)
+          registration (-&gt;FunctionRegistration function (.toString path) (keys kinds) recursive?)]
+      (if recursive?
+        (register-dir-recursive path)
+        (register-dir path))
+      (swap! registry update-in [(.toString path)] conj registration)
+      registration)))</pre></td></tr><tr><td class="docs"><p>Taking a WatchKey, process the events that occurred in it, and run the function across all of them</p>
+</td><td class="codes"><pre class="brush: clojure">(defn process-events
+  [^WatchKey key func]
+  (if (.isValid key)
+    (let [events (.pollEvents key)
+          unrolled-events (map #(convert-to-path-event %1 key) events)
+          ;; also re-register recursive subdirectories if the events are directory create events
+          ;; and the EventSubscription says to register recursive dirs
+          ]
+      ;; lookup function to call based on the :path and :kind
+      (dorun (map func unrolled-events))
+      (.reset key))))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(defn loop-watch []
+  (loop [key (.take ^WatchService @watch-service)]
+    (process-events key)
+    (.reset key)
+    (recur (.take ^WatchService @watch-service))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.java-watcher.core" name="com.klauer.java-watcher.core"><h1 class="project-name">com.klauer.java-watcher.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns com.klauer.java-watcher.core
   (:import [java.nio.file FileSystems Path Paths StandardWatchEventKinds
             WatchEvent WatchKey Watchable WatchService WatchEvent$Kind])
@@ -3042,7 +3126,7 @@ net.brehaut.ClojureTools = (function (SH) {
             :modify StandardWatchEventKinds/ENTRY_MODIFY
             ;; indicates that events may have been lost or discarded
             :overflow StandardWatchEventKinds/OVERFLOW})</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(def all-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_DELETE StandardWatchEventKinds/ENTRY_MODIFY]))
+</td><td class="codes"><pre class="brush: clojure">(def all-kinds (into-array (vals (dissoc kinds :overflow))))
 (def watch-service (atom (.. FileSystems getDefault newWatchService)))
 (def registered-watches (atom #{}))</pre></td></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(defrecord EventSubscription [path subscribed-events function recursive?])</pre></td></tr><tr><td class="docs"><p>(defrecord PathEvent [subscribed-events function recursive?])</p>
@@ -3072,7 +3156,10 @@ net.brehaut.ClojureTools = (function (SH) {
   [^WatchKey key func]
   (if (.isValid key)
     (let [events (.pollEvents key)
-          unrolled-events (map #(unroll-event %1 key) events)]
+          unrolled-events (map #(unroll-event %1 key) events)
+          ;; also re-register recursive subdirectories if the events are directory create events
+          ;; and the EventSubscription says to register recursive dirs
+          ]
       ;; lookup function to call based on the :path and :kind
       (dorun (map func unrolled-events))
       (.reset key))))</pre></td></tr><tr><td class="docs"><p>Start a Lamina Pipeline on the watch and run function</p>
@@ -3104,15 +3191,28 @@ net.brehaut.ClojureTools = (function (SH) {
     (pipeline-events-with @watch-service func)
     watch))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.java-watcher.files" name="com.klauer.java-watcher.files"><h1 class="project-name">com.klauer.java-watcher.files</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes"><pre class="brush: clojure">(ns com.klauer.java-watcher.files
+  (:require [fs.core :as fs])
   (:import [java.nio.file Files Path Paths LinkOption]
            [java.io File]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs"><p>Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)</p>
-</td><td class="codes"><pre class="brush: clojure">(defn make-path 
-  [^String directory]
-  (Paths/get directory (into-array String &quot;&quot;)))</pre></td></tr><tr><td class="docs"><p>Check for file existence based on the type passed in</p>
-</td><td class="codes"><pre class="brush: clojure">(defprotocol FileExistsCheck
+</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)</pre></td></tr><tr><td class="docs"><p>(defn make-path 
+ "Creates a java.nio.file.Path object from a string because Paths#get doesn't work that way (surprise!)"
+ [^String directory]
+ (Paths/get directory (into-array String "")))</p>
+</td><td class="codes"></td></tr><tr><td class="docs"><p>Makes a Path</p>
+</td><td class="codes"><pre class="brush: clojure">(defprotocol MakesPath
+  (make-path [path]))</pre></td></tr><tr><td class="docs">
+</td><td class="codes"><pre class="brush: clojure">(extend-protocol MakesPath
+  String
+  (make-path
+    [path]
+    (Paths/get path (into-array String &quot;&quot;)))
+  File
+  (make-path
+    [path]
+    (.toPath path)))</pre></td></tr><tr><td class="docs"><p>Check for file existence based on the type passed in</p>
+</td><td class="codes"><pre class="brush: clojure">(defprotocol ChecksForFileExistence
   (exists? [path]))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(extend-protocol FileExistsCheck
+</td><td class="codes"><pre class="brush: clojure">(extend-protocol ChecksForFileExistence
   String
   (exists?
     [path]
@@ -3124,30 +3224,9 @@ net.brehaut.ClojureTools = (function (SH) {
   File
   (exists?
     [path]
-    (.exists path)))</pre></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(defn create-temp-file
-  [^Path path ^String filename])</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#com.klauer.java-watcher.watcher" name="com.klauer.java-watcher.watcher"><h1 class="project-name">com.klauer.java-watcher.watcher</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(ns com.klauer.java-watcher.watcher
-  (:import [java.nio.file Files SimpleFileVisitor FileVisitResult FileSystems Path Paths StandardWatchEventKinds
-            WatchEvent WatchKey Watchable WatchService WatchEvent$Kind]
-           [java.nio.file.attribute BasicFileAttributes])
-  (:require [com.klauer.java-watcher.files :as files]
-            [lamina.executor :as lamexecutor]
-            [lamina.core :as lamcore]
-            [com.klauer.java-watcher.files :as f]))</pre></td></tr><tr><td class="docs"><p>this takes all sorts of 'inspiration' from Oracle's example code for using the WatchService.
-I'm hoping to at least use this as the basis for a revamping of the process that I have
-implemented in core, but I am not sure what is going on entirely yet.</p>
-</td><td class="codes"></td></tr><tr><td class="docs">
-</td><td class="codes"><pre class="brush: clojure">(set! *warn-on-reflection* true)
-(def watcher (atom (.. FileSystems getDefault newWatchService)))
-(def watch-kinds (into-array [StandardWatchEventKinds/ENTRY_CREATE StandardWatchEventKinds/ENTRY_MODIFY StandardWatchEventKinds/ENTRY_DELETE]))</pre></td></tr><tr><td class="docs"><p>Register the given directory to the WatchService for all known types of events (Create, Modify, Delete)</p>
-</td><td class="codes"><pre class="brush: clojure">(defn register-dir
-  [^Path dir]
-  (let [key (.register dir @watcher watch-kinds)]))</pre></td></tr><tr><td class="docs"><p>Register a directory and all it's sub-directories recursively based on the start Path passed in</p>
-</td><td class="codes"><pre class="brush: clojure">(defn register-all
-  [^Path start]
-   (Files/walkFileTree start (proxy [SimpleFileVisitor] []
-    ^FileVisitResult (preVisitDirectory [^Path dir ^BasicFileAttributes attrs]
-                                        (register-dir dir)
-                                        FileVisitResult/CONTINUE))))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+    (.exists path)))</pre></td></tr><tr><td class="docs"><p>Given a directory and a filename, create an empty file in that directory</p>
+</td><td class="codes"><pre class="brush: clojure">(defn create-empty-file
+  [^File directory
+   ^String filename]
+  (fs/create (File. directory filename)))</pre></td></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
