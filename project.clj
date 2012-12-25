@@ -4,10 +4,15 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
-                 [lamina "0.5.0-beta8"]
-                 [midje "1.5-alpha2" :scope "test"]
+                 [lamina "0.5.0-beta8" :exclusions [useful]]
+                 [potemkin "0.1.6"]
+                 [midje "1.5-alpha3" :scope "test"]
                  [fs "1.3.2" :scope "test"]
-                 [com.stuartsierra/lazytest "1.2.3" :scope "test"]]
+                 [com.stuartsierra/lazytest "1.2.3" :scope "test"]
+                 [vimclojure/server "2.3.3" :exclusions [org.clojure/clojure]] 
+                 ]
   :repositories {"stuart" "http://stuartsierra.com/maven2"}
-  :plugins [[lein-midje "2.0.1"]
-            [codox "0.6.1"]])
+  :plugins [[lein-midje "2.0.3"]
+            [codox "0.6.1"]]
+  
+  )
