@@ -1,8 +1,8 @@
+# NOT READY YET:
+This project is really really in flux.  It's not at a usable state (and there are actually two divergent API's doing the same thing, neither of which is working 100% at this point).  Use at your own risk.
+
 # java-watcher.clj
 [![Build Status](https://secure.travis-ci.org/klauern/java7-watcher.clj.png)](http://travis-ci.org/klauern/java-watcher.clj)
-
-## NOTE:
-This project is really really in flux.  It's not at a usable state (and there are actually two divergent API's doing the same thing, neither of which is working 100% at this point).  Use at your own risk.
 
 ## Intro
 
