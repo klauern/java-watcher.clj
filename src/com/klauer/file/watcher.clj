@@ -40,7 +40,7 @@
         ;; for my awful discovery.
         context (.context event)
         kind (.kind event)
-        full_path (.toString (.resolve ^Path dir ^Path context))]
+        full_path (str (.resolve ^Path dir ^Path context))]
     (->PathEvent full_path kind)))
 
 (defprotocol RegistersDirectories
@@ -71,11 +71,11 @@
     (register path-str function true))
   ([^String path-str function recursive?]
     (let [path ^Path (f/make-path path-str)
-          registration (->FunctionRegistration function (.toString path) (keys kinds) recursive?)]
+          registration (->FunctionRegistration function (str path) (keys kinds) recursive?)]
       (if recursive?
         (register-dir-recursive path)
         (register-dir path))
-      (swap! registry update-in [(.toString path)] conj registration)
+      (swap! registry update-in [(str path)] conj registration)
       registration
       )))
 
