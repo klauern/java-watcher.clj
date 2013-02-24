@@ -70,9 +70,9 @@
 (fact "can unregister a registered watch"
       (let [watch (dummy-watch (first dirs))]
         (unregister-watch watch)
-        (count (watches)) => 0)
-      (provided 
-        (watches) => #{}))
+        (count (watches)) => 0
+        (provided
+          (watches) => #{})))
 
 (future-fact "when registering two watches on separate dirs, one won't get called by events on the other's directory"
       (let [first (dummy-watch (first dirs))
