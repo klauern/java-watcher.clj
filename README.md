@@ -23,6 +23,7 @@ There are two ways to go about creating a watch:
 ### Syntax-sugary way
 
 ```clj
+(use ['com.klauer.java-watcher.core :only [register-watch]])
 (register-watch "/some/path/directory/here" [:modify] #(println "hello event " %))
 ```
 
