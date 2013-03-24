@@ -10,7 +10,9 @@
                  [midje "1.5-beta2" :scope "test"]
                  [fs "1.3.3" :scope "test"]
                  ]
-  :repositories {"stuart" "http://stuartsierra.com/maven2"}
+  :repositories [ ["stuart" "http://stuartsierra.com/maven2"] 
+                 ["releases" "https://clojars.org/repo"]
+                 ]
   :plugins [
             [lein-midje "3.0-beta1"]
             [codox "0.6.1"]
