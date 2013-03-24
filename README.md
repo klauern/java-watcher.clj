@@ -15,7 +15,7 @@ Maybe I will create or modify this to use something like [JNotify](http://jnotif
 Include this in your `project.clj`:
 
 ```clj
-[com.klauer/java-watcher "0.1.0-SNAPSHOT"]
+[com.klauer/java-watcher "0.1.0"]
 ```
 
 There are two ways to go about creating a watch:
