@@ -30,9 +30,15 @@
 
       </header>
       <section>
-        <h1>java-watcher.clj</h1>
+        <h1>NOT READY YET:</h1>
+
+<p>This project is really really in flux.  It's not at a usable state (and there are actually two divergent API's doing the same thing, neither of which is working 100% at this point).  Use at your own risk.</p>
+
+<h1>java-watcher.clj</h1>
 
 <p><a href="http://travis-ci.org/klauern/java-watcher.clj"><img src="https://secure.travis-ci.org/klauern/java7-watcher.clj.png" alt="Build Status"></a></p>
+
+<h2>Intro</h2>
 
 <p>Stupidly simple java7 file watch service.  This is largely a Clojure-ified wrapper around <a href="http://docs.oracle.com/javase/tutorial/essential/io/notification.html">Java 7's WatchService</a>, which works natively on Windows and Linux, but not entirely on OSX.  Don't use this if you run a Mac since OS X <a href="http://stackoverflow.com/a/11182515/7008">has no native file watching service</a>, but rather uses a poll-based approach.  Or rather, if you don't care that it uses a polling-based event tracker, go ahead and use this, but it won't be as performant as other options.</p>
 
@@ -42,14 +48,15 @@
 
 <p>Include this in your <code>project.clj</code>:</p>
 
-<div class="highlight"><pre><span class="p">[</span><span class="nv">com.klauer/java-watcher</span> <span class="s">"0.1.0-SNAPSHOT"</span><span class="p">]</span>
+<div class="highlight"><pre><span class="p">[</span><span class="nv">com.klauer/java-watcher</span> <span class="s">"0.1.0"</span><span class="p">]</span>
 </pre></div>
 
 <p>There are two ways to go about creating a watch:</p>
 
 <h3>Syntax-sugary way</h3>
 
-<div class="highlight"><pre><span class="p">(</span><span class="nf">register-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[</span><span class="ss">:modify</span><span class="p">]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
+<div class="highlight"><pre><span class="p">(</span><span class="nf">use</span> <span class="p">[</span><span class="ss">'com.klauer.java-watcher.core</span> <span class="ss">:only</span> <span class="p">[</span><span class="nv">register-watch</span><span class="p">]])</span>
+<span class="p">(</span><span class="nf">register-watch</span> <span class="s">"/some/path/directory/here"</span> <span class="p">[</span><span class="ss">:modify</span><span class="p">]</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"hello event "</span> <span class="nv">%</span><span class="p">))</span>
 </pre></div>
 
 <p>The arguments are "path", [:modify :create :delete], function.  The vector can be one of :</p>
@@ -93,20 +100,20 @@ hello event  {:kind #&lt;StdWatchEventKind ENTRY_MODIFY&gt;, :path /some/path/di
 
 <div class="highlight"><pre><span class="c1">;; can use any combination of elements in `kinds`, even `(vals kinds)` itself</span>
 <span class="c1">;; `@watch-service` is an atom for the FileSystem watch service.</span>
-<span class="p">(</span><span class="nf">register-with</span> <span class="nv">example-directory</span> <span class="err">@</span><span class="nv">watch-service</span> <span class="p">[(</span><span class="ss">:create</span> <span class="nv">kinds</span><span class="p">)</span> <span class="p">(</span><span class="ss">:delete</span> <span class="nv">kinds</span><span class="p">)])</span>
+<span class="p">(</span><span class="nf">register-with</span> <span class="nv">example-directory</span> <span class="o">@</span><span class="nv">watch-service</span> <span class="p">[(</span><span class="ss">:create</span> <span class="nv">kinds</span><span class="p">)</span> <span class="p">(</span><span class="ss">:delete</span> <span class="nv">kinds</span><span class="p">)])</span>
 </pre></div>
 </li>
 <li>
 <p>call <code>pipeline-events-with</code> and pass in a function to call when something changes:</p>
 
-<div class="highlight"><pre><span class="p">(</span><span class="nf">pipeline-events-with</span> <span class="err">@</span><span class="nv">watch-service</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"Oh Happy Day"</span><span class="p">)</span> <span class="nv">extra</span> <span class="nv">args</span> <span class="nv">here</span><span class="p">)</span>
+<div class="highlight"><pre><span class="p">(</span><span class="nf">pipeline-events-with</span> <span class="o">@</span><span class="nv">watch-service</span> <span class="o">#</span><span class="p">(</span><span class="nb">println </span><span class="s">"Oh Happy Day"</span><span class="p">)</span> <span class="nv">extra</span> <span class="nv">args</span> <span class="nv">here</span><span class="p">)</span>
 <span class="c1">;; This is asynchronous through the use of the ever-nifty Lamina project (https://github.com/ztellman/lamina).</span>
 </pre></div>
 </li>
 <li>
 <p>All registered watches are stored in the <code>*registered-watches*</code> atom, and can be removed by calling <code>unregister-watch</code>:</p>
 
-<div class="highlight"><pre><span class="p">(</span><span class="nf">unregister-watch</span> <span class="p">(</span><span class="nb">first </span><span class="err">@</span><span class="nv">*registered-watches*</span><span class="p">))</span>
+<div class="highlight"><pre><span class="p">(</span><span class="nf">unregister-watch</span> <span class="p">(</span><span class="nb">first </span><span class="o">@</span><span class="nv">*registered-watches*</span><span class="p">))</span>
 <span class="c1">;; this not only removes it from the atom, but unregisters your passed-in function and any</span>
 <span class="c1">;; handling of future file-system events it was registered for.</span>
 </pre></div>
